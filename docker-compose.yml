@@ -18,6 +18,8 @@ services:
     restart: on-failure
     ports:
       - "${SPRING_LOCAL_PORT}:${SPRING_DOCKER_PORT}"
+    env_file:
+      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:${POSTGRES_DOCKER_PORT}/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
