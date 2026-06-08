@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-insert-default-users
+      author: Krupko Illia
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "admin@mail.com"
+              - column:
+                  name: password
+                  value: "$2a$12$6zFBs11tHsVXhFakFybcIeMSSuZulwLvo0EDjA1JdhZRgmJT3FLBi"
+              - column:
+                  name: first_name
+                  value: "Admin"
+              - column:
+                  name: last_name
+                  value: "Admin"
+              - column:
+                  name: role
+                  value: "MANAGER"
+              - column:
+                  name: is_deleted
+                  valueBoolean: false
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: "user@mail.com"
+              - column:
+                  name: password
+                  value: "$2a$12$HYf6Nk.d1Q7.rjSmbP4.e.C3GzSFVoLtRx273ih.mgwwRXYg/Jux2"
+              - column:
+                  name: first_name
+                  value: "User"
+              - column:
+                  name: last_name
+                  value: "User"
+              - column:
+                  name: role
+                  value: "CUSTOMER"
+              - column:
+                  name: is_deleted
+                  valueBoolean: false
+
+
+                  
