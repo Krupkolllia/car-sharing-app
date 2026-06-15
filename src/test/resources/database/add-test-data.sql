@@ -1,3 +1,4 @@
+DELETE FROM users;
 INSERT INTO users (id, email, password, first_name, last_name, role)
 VALUES (1, 'test.user1@mail.com', '$2a$12$DtQUdqgM9yq4yrtbnDpFiO/9NlyzGlhoIBNIgx1Njak.NB7SniGRi',
         'test', 'user1', 'CUSTOMER'),
