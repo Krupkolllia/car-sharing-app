@@ -14,6 +14,7 @@ import org.project.carsharingapp.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,13 +56,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             )
         );
 
-        Object principal = authentication.getPrincipal();
-
-        if (!(principal instanceof User user)) {
+        if (!(authentication.getPrincipal() instanceof UserDetails user)) {
             throw new LoginException("Authentication principal is invalid");
         }
 
         return new AuthResponseDto(jwtUtil.generateToken(user));
-
     }
 }

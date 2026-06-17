@@ -31,7 +31,7 @@ public class UserRepositoryTest {
         should return not empty Optional<User> with 1 User with
         requested email
         """)
-    public void findByEmail_WithValidEmail_ShouldReturnOptionalWithUser() {
+    void findByEmail_WithValidEmail_ShouldReturnOptionalWithUser() {
         // Given
         User expected = createTestCustomer();
 
@@ -49,7 +49,7 @@ public class UserRepositoryTest {
         findByEmail method with email of non-existing User in database
         should return empty Optional<User>
         """)
-    public void findByEmail_WithInvalidEmail_ShouldReturnEmptyOptional() {
+    void findByEmail_WithInvalidEmail_ShouldReturnEmptyOptional() {
         // Given
         String invalidEmail = "invalidEmail@mail.com";
 
@@ -67,7 +67,7 @@ public class UserRepositoryTest {
         existsByEmail method with email of existing User
         in database should return boolean true
         """)
-    public void existsByEmail_WithValidEmail_ShouldReturnBooleanTrue() {
+    void existsByEmail_WithValidEmail_ShouldReturnBooleanTrue() {
         // Given
         String email = createTestCustomer().getEmail();
 
@@ -85,7 +85,7 @@ public class UserRepositoryTest {
         existsByEmail method with email of non-existing
         User in database should return boolean false
         """)
-    public void existsByEmail_WithInvalidEmail_ShouldReturnBooleanFalse() {
+     void existsByEmail_WithInvalidEmail_ShouldReturnBooleanFalse() {
         // Given
         String invalidEmail = "invalidEmail@mail.com";
 
