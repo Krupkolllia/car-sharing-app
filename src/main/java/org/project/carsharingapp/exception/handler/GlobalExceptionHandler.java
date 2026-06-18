@@ -10,7 +10,6 @@ import org.project.carsharingapp.exception.RegistrationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -69,7 +68,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ExceptionResponse> handleAuthenticationException(
-        AuthenticationException e, HttpServletRequest request
+            AuthenticationException e, HttpServletRequest request
     ) {
         return buildResponse(
             HttpStatus.UNAUTHORIZED,
