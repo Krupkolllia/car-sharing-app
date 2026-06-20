@@ -10,6 +10,7 @@ import org.project.carsharingapp.exception.RegistrationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,6 +66,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionResponse> handleAuthenticationException(
+            AuthenticationException e, HttpServletRequest request
+    ) {
+        return buildResponse(
+            HttpStatus.UNAUTHORIZED,
+            e.getMessage(),
+            request.getRequestURI(),
+            Map.of()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleValidation(
             MethodArgumentNotValidException e, HttpServletRequest request
@@ -88,7 +101,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            e.getMessage(),
+            "An unexpected error occurred",
             request.getRequestURI(),
             Map.of()
         );
