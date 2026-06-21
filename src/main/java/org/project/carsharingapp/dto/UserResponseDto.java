@@ -1,6 +1,6 @@
 package org.project.carsharingapp.dto;
 
-import org.project.carsharingapp.model.Role;
+import org.project.carsharingapp.model.user.Role;
 
 public record UserResponseDto(
         Long id,

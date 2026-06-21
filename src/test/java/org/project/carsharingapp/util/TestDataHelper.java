@@ -1,7 +1,7 @@
 package org.project.carsharingapp.util;
 
-import org.project.carsharingapp.model.Role;
-import org.project.carsharingapp.model.User;
+import org.project.carsharingapp.model.user.Role;
+import org.project.carsharingapp.model.user.User;
 
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";

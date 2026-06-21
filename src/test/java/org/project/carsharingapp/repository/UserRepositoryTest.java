@@ -8,7 +8,7 @@ import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.carsharingapp.model.User;
+import org.project.carsharingapp.model.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
