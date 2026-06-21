@@ -38,17 +38,17 @@ public class CarServiceImpl implements CarService {
     @Transactional(readOnly = true)
     @Override
     public CarResponseDto findById(Long id) {
-       Car car = carRepository.findById(id).orElseThrow(
-           () -> new EntityNotFoundException("Cannot find a car with id " + id)
-       );
+        Car car = carRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Cannot find a car with id " + id)
+        );
 
-       return carMapper.toDto(car);
+        return carMapper.toDto(car);
     }
 
     @Override
     public CarResponseDto update(Long id, CarUpdateRequestDto requestDto) {
         Car car = carRepository.findById(id).orElseThrow(
-            () -> new EntityNotFoundException("Cannot find a car with id " + id)
+                () -> new EntityNotFoundException("Cannot find a car with id " + id)
         );
 
         carMapper.update(car, requestDto);
