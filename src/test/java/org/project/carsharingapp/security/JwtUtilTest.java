@@ -8,7 +8,7 @@ import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.carsharingapp.model.User;
+import org.project.carsharingapp.model.user.User;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class JwtUtilTest {

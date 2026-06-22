@@ -1,4 +1,4 @@
-package org.project.carsharingapp.model;
+package org.project.carsharingapp.model.user;
 
 import org.springframework.security.core.GrantedAuthority;
 

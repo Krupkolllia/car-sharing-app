@@ -44,3 +44,5 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
+        - sql:
+            sql: ALTER TABLE cars ADD CONSTRAINT chk_inventory_non_negative CHECK (inventory >= 0);

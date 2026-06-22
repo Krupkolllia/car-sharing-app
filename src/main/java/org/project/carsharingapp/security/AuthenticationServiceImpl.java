@@ -1,15 +1,15 @@
 package org.project.carsharingapp.security;
 
 import lombok.RequiredArgsConstructor;
-import org.project.carsharingapp.dto.AuthResponseDto;
-import org.project.carsharingapp.dto.UserLoginRequestDto;
-import org.project.carsharingapp.dto.UserRegisterRequestDto;
-import org.project.carsharingapp.dto.UserResponseDto;
+import org.project.carsharingapp.dto.auth.AuthResponseDto;
+import org.project.carsharingapp.dto.auth.UserLoginRequestDto;
+import org.project.carsharingapp.dto.auth.UserRegisterRequestDto;
+import org.project.carsharingapp.dto.auth.UserResponseDto;
 import org.project.carsharingapp.exception.LoginException;
 import org.project.carsharingapp.exception.RegistrationException;
 import org.project.carsharingapp.mapper.UserMapper;
-import org.project.carsharingapp.model.Role;
-import org.project.carsharingapp.model.User;
+import org.project.carsharingapp.model.user.Role;
+import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

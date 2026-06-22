@@ -1,7 +1,7 @@
 package org.project.carsharingapp.repository;
 
 import java.util.Optional;
-import org.project.carsharingapp.model.User;
+import org.project.carsharingapp.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {

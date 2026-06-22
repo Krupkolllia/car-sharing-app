@@ -13,11 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.carsharingapp.dto.AuthResponseDto;
-import org.project.carsharingapp.dto.UserLoginRequestDto;
-import org.project.carsharingapp.dto.UserRegisterRequestDto;
-import org.project.carsharingapp.dto.UserResponseDto;
-import org.project.carsharingapp.model.Role;
+import org.project.carsharingapp.dto.auth.AuthResponseDto;
+import org.project.carsharingapp.dto.auth.UserLoginRequestDto;
+import org.project.carsharingapp.dto.auth.UserRegisterRequestDto;
+import org.project.carsharingapp.dto.auth.UserResponseDto;
+import org.project.carsharingapp.model.user.Role;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MvcResult;
