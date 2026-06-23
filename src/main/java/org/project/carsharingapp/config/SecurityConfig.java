@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -45,6 +46,8 @@ public class SecurityConfig {
                 auth ->
                     auth.requestMatchers("/auth/**", "/error/**",
                             "/swagger-ui/**", "/v3/api-docs/**", "/health")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars", "/cars/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
