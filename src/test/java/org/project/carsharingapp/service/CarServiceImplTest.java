@@ -10,8 +10,9 @@ import static org.mockito.Mockito.when;
 import static org.project.carsharingapp.util.TestDataHelper.createCar;
 import static org.project.carsharingapp.util.TestDataHelper.createCarRequestDto;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDto;
+import static org.project.carsharingapp.util.TestDataHelper.createCarUpdateRequestDto;
+import static org.project.carsharingapp.util.TestDataHelper.createUpdatedCarResponseDto;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,6 @@ import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.mapper.CarMapper;
 import org.project.carsharingapp.model.car.Car;
-import org.project.carsharingapp.model.car.CarType;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.service.impl.CarServiceImpl;
 import org.springframework.data.domain.Page;
@@ -158,16 +158,11 @@ public class CarServiceImplTest {
     void update_WithValidId_ShouldReturnUpdatedCarResponseDto() {
         // Given
         Long id = 1L;
-        CarUpdateRequestDto requestDto = new CarUpdateRequestDto(
-            null, null, null, 7, null
-        );
+        CarUpdateRequestDto requestDto = createCarUpdateRequestDto();
 
         Car car = createCar().setId(id);
 
-        CarResponseDto expected = new CarResponseDto(
-            id, "M5", "BMW", CarType.SEDAN.name(),
-            7, new BigDecimal("39.99")
-        );
+        CarResponseDto expected = createUpdatedCarResponseDto();
 
         when(carRepository.findById(id)).thenReturn(Optional.of(car));
 
@@ -199,9 +194,7 @@ public class CarServiceImplTest {
     void update_WithInvalidId_ShouldThrowEntityNotFoundException() {
         // Given
         Long invalidId = 404L;
-        CarUpdateRequestDto requestDto = new CarUpdateRequestDto(
-            null, null, null, 7, null
-        );
+        CarUpdateRequestDto requestDto = createCarUpdateRequestDto();
 
         when(carRepository.findById(invalidId)).thenReturn(Optional.empty());
 

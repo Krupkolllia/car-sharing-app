@@ -8,7 +8,6 @@ import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
@@ -28,11 +27,11 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
-        register method with valid register request dto
-        should return response with registered user and
-        status code 201
+        POST /auth/registration with valid request dto
+        should return registered user and status code 201
         """)
-    void register_WithValidRequestDto_ShouldReturnStatusCode201() throws Exception {
+    void register_WithValidRequestDto_ShouldReturnRegisteredUserAndStatusCode201()
+        throws Exception {
         // Given
         UserRegisterRequestDto requestDto = new UserRegisterRequestDto(
             "test.register@mail.com", "testPassword", "test", "test"
@@ -46,10 +45,10 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
         // When
         MvcResult result = mockMvc.perform(
-            post("/auth/registration")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest)
-        )
+                post("/auth/registration")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonRequest)
+            )
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -69,8 +68,8 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
-        register method with already registered email should
-        return response with status code 409
+        POST /auth/registration with already registered email
+        should return status code 409
         """)
     void register_WithRegisteredEmail_ShouldReturnStatusCode409() throws Exception {
         // Given
@@ -83,10 +82,10 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
         // When & Then
         mockMvc.perform(
-            post("/auth/registration")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest)
-        )
+                post("/auth/registration")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonRequest)
+            )
             .andExpect(status().isConflict());
     }
 
@@ -94,10 +93,11 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
-        login method with valid credentials should
-        return response with jwt token and status code 200
+        POST /auth/login with valid credentials
+        should return jwt token and status code 200
         """)
-    void login_WithValidCredentials_ShouldReturnStatusCode200() throws Exception {
+    void login_WithValidCredentials_ShouldReturnJwtTokenAndStatusCode200()
+        throws Exception {
         // Given
         String email = createTestCustomer().getEmail();
 
@@ -109,10 +109,10 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
         // When
         MvcResult result = mockMvc.perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest)
-        )
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonRequest)
+            )
             .andExpect(status().isOk())
             .andReturn();
 
@@ -127,8 +127,8 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
-        login method with invalid credentials should
-        return response with status code 401
+        POST /auth/login with invalid credentials
+        should return status code 401
         """)
     void login_WithInvalidCredentials_ShouldReturnStatusCode401() throws Exception {
         // Given
@@ -138,12 +138,12 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
         String jsonRequest = jsonMapper.writeValueAsString(invalidRequestDto);
 
-        // When
+        // When & Then
         mockMvc.perform(
-            post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonRequest)
-        )
+                post("/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonRequest)
+            )
             .andExpect(status().isUnauthorized());
     }
 }
