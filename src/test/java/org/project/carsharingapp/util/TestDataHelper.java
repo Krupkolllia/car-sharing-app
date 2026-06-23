@@ -13,8 +13,6 @@ import org.project.carsharingapp.model.user.User;
 
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
-    public static final String DELETE_SCRIPT_PATH = "classpath:database/delete-test-data.sql";
-
     public static final String USER_RAW_PASSWORD = "testuser1";
 
     public static User createTestCustomer() {

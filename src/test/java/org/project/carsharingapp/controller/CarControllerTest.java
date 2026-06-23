@@ -2,14 +2,12 @@ package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
-import static org.project.carsharingapp.util.TestDataHelper.DELETE_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.createCarRequestDto;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDto;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDtoList;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDtoWithId;
 import static org.project.carsharingapp.util.TestDataHelper.createCarUpdateRequestDto;
 import static org.project.carsharingapp.util.TestDataHelper.createUpdatedCarResponseDto;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,7 +32,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @WithUserDetails("test.manager1@mail.com")
     @DisplayName("""
         POST /cars with valid request dto
@@ -71,7 +68,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         GET /cars with valid pageable params
         should return page of cars and status code 200
@@ -104,7 +100,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         GET /cars/{id} with id of existing car
         should return found car and status code 200
@@ -129,7 +124,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         GET /cars/{id} with id of non-existing car
         should return status code 404
@@ -145,7 +139,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @WithUserDetails("test.manager1@mail.com")
     @DisplayName("""
         PATCH /cars/{id} with id of existing car
@@ -179,7 +172,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @WithUserDetails("test.manager1@mail.com")
     @DisplayName("""
         PATCH /cars/{id} with id of non-existing car
@@ -203,7 +195,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @WithUserDetails("test.manager1@mail.com")
     @DisplayName("""
         DELETE /cars/{id} with id of existing car
@@ -224,7 +215,6 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @WithUserDetails("test.manager1@mail.com")
     @DisplayName("""
         DELETE /cars/{id} with id of non-existing car

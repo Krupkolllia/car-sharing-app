@@ -2,10 +2,8 @@ package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
-import static org.project.carsharingapp.util.TestDataHelper.DELETE_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.USER_RAW_PASSWORD;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +23,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         POST /auth/registration with valid request dto
         should return registered user and status code 201
@@ -66,7 +63,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         POST /auth/registration with already registered email
         should return status code 409
@@ -91,7 +87,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         POST /auth/login with valid credentials
         should return jwt token and status code 200
@@ -125,7 +120,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = AFTER_TEST_METHOD)
     @DisplayName("""
         POST /auth/login with invalid credentials
         should return status code 401

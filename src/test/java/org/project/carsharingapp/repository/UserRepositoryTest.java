@@ -2,7 +2,6 @@ package org.project.carsharingapp.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
-import static org.project.carsharingapp.util.TestDataHelper.DELETE_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 
 import java.util.Optional;
@@ -25,7 +24,6 @@ public class UserRepositoryTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("""
         findByEmail method with email of existing User in database
         should return not empty Optional<User> with 1 User with
@@ -44,7 +42,6 @@ public class UserRepositoryTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("""
         findByEmail method with email of non-existing User in database
         should return empty Optional<User>
@@ -62,7 +59,6 @@ public class UserRepositoryTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("""
         existsByEmail method with email of existing User
         in database should return boolean true
@@ -80,7 +76,6 @@ public class UserRepositoryTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = DELETE_SCRIPT_PATH, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
     @DisplayName("""
         existsByEmail method with email of non-existing
         User in database should return boolean false
