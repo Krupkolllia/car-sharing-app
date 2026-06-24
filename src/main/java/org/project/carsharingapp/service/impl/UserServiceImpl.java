@@ -1,9 +1,9 @@
 package org.project.carsharingapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.project.carsharingapp.dto.user.UpdateUserProfileDto;
-import org.project.carsharingapp.dto.user.UpdateUserRoleDto;
-import org.project.carsharingapp.dto.user.UserProfileDto;
+import org.project.carsharingapp.dto.user.UpdateUserProfileRequestDto;
+import org.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
+import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.mapper.UserMapper;
 import org.project.carsharingapp.model.user.User;
@@ -23,12 +23,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserProfileDto getProfile() {
+    public UserProfileResponseDto getProfile() {
         return userMapper.toProfileDto(SecurityUtil.getAuthenticatedUser());
     }
 
     @Override
-    public UserProfileDto updateProfile(UpdateUserProfileDto updateDto) {
+    public UserProfileResponseDto updateProfile(UpdateUserProfileRequestDto updateDto) {
         User user = SecurityUtil.getAuthenticatedUser();
 
         userMapper.update(user, updateDto);
@@ -36,9 +36,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileDto updateUserRole(Long id, UpdateUserRoleDto updateDto) {
+    public UserProfileResponseDto updateUserRole(Long id, UpdateUserRoleRequestDto updateDto) {
         User user = userRepository.findById(id).orElseThrow(
-            () -> new EntityNotFoundException("Cannot find user with id " + id)
+                () -> new EntityNotFoundException("Cannot find user with id " + id)
         );
 
         userMapper.update(user, updateDto);

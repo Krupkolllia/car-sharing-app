@@ -7,8 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class SecurityUtil {
     public static User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder
-            .getContext()
-            .getAuthentication();
+                .getContext()
+                .getAuthentication();
 
         if (authentication != null && authentication.getPrincipal() instanceof User user) {
             return user;

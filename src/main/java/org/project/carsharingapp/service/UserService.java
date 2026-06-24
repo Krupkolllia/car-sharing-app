@@ -1,15 +1,15 @@
 package org.project.carsharingapp.service;
 
-import org.project.carsharingapp.dto.user.UpdateUserProfileDto;
-import org.project.carsharingapp.dto.user.UpdateUserRoleDto;
-import org.project.carsharingapp.dto.user.UserProfileDto;
+import org.project.carsharingapp.dto.user.UpdateUserProfileRequestDto;
+import org.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
+import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 
 public interface UserService {
 
-    UserProfileDto getProfile();
+    UserProfileResponseDto getProfile();
 
-    UserProfileDto updateProfile(UpdateUserProfileDto updateDto);
+    UserProfileResponseDto updateProfile(UpdateUserProfileRequestDto updateDto);
 
-    UserProfileDto updateUserRole(Long id, UpdateUserRoleDto updateDto);
+    UserProfileResponseDto updateUserRole(Long id, UpdateUserRoleRequestDto updateDto);
 
 }
