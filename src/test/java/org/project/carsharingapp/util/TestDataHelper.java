@@ -15,6 +15,8 @@ public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
     public static final String USER_RAW_PASSWORD = "testuser1";
 
+    public static final Long MOCK_USER_ID = 274L;
+
     public static User createTestCustomer() {
         return new User()
             .setId(1L)
