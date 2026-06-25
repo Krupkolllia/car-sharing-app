@@ -6,6 +6,7 @@ import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.car.CarType;
 import org.project.carsharingapp.model.user.Role;
@@ -13,19 +14,35 @@ import org.project.carsharingapp.model.user.User;
 
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
-    public static final String USER_RAW_PASSWORD = "testuser1";
+
+    public static final Long CUSTOMER_ID = 1L;
+    public static final String CUSTOMER_RAW_PASSWORD = "testuser";
+    public static final String CUSTOMER_MAIL = "test.user@mail.com";
+    public static final String MANAGER_MAIL = "test.manager@mail.com";
 
     public static final Long MOCK_USER_ID = 274L;
 
     public static User createTestCustomer() {
         return new User()
             .setId(1L)
-            .setEmail("test.user1@mail.com")
-            .setPassword("$2a$12$KvTBaCc8tnqLRp3F0c1Bp.DZZYUf0TUmLdcNdnt/w2uPdQZ/5l1m6")
+            .setEmail(CUSTOMER_MAIL)
+            .setPassword("$2a$12$Bx.Pdcm6JggueZYewe1lC.1xWBtMr85se/AnlW4MujOefLH2izXoi")
             .setFirstName("test")
-            .setLastName("user1")
+            .setLastName("user")
             .setRole(Role.CUSTOMER)
             .setDeleted(false);
+    }
+
+    public static UserProfileResponseDto createTestCustomerProfileResponseDto() {
+        return new UserProfileResponseDto(
+            CUSTOMER_MAIL, "test", "user", Role.CUSTOMER.name()
+        );
+    }
+
+    public static UserProfileResponseDto createTestManagerProfileResponseDto() {
+        return new UserProfileResponseDto(
+            MANAGER_MAIL, "test", "manager", Role.MANAGER.name()
+        );
     }
 
     public static CarRequestDto createCarRequestDto() {

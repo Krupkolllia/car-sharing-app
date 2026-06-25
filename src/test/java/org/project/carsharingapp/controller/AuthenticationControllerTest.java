@@ -2,7 +2,7 @@ package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
-import static org.project.carsharingapp.util.TestDataHelper.USER_RAW_PASSWORD;
+import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_RAW_PASSWORD;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,7 +97,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         String email = createTestCustomer().getEmail();
 
         UserLoginRequestDto requestDto = new UserLoginRequestDto(
-            email, USER_RAW_PASSWORD
+            email, CUSTOMER_RAW_PASSWORD
         );
 
         String jsonRequest = jsonMapper.writeValueAsString(requestDto);

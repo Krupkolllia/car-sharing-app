@@ -32,7 +32,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager1@mail.com")
+    @WithUserDetails("test.manager@mail.com")
     @DisplayName("""
         POST /cars with valid request dto
         should return created car and status code 201
@@ -139,7 +139,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager1@mail.com")
+    @WithUserDetails("test.manager@mail.com")
     @DisplayName("""
         PATCH /cars/{id} with id of existing car
         should return updated car and status code 200
@@ -172,7 +172,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager1@mail.com")
+    @WithUserDetails("test.manager@mail.com")
     @DisplayName("""
         PATCH /cars/{id} with id of non-existing car
         should return status code 404
@@ -195,7 +195,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager1@mail.com")
+    @WithUserDetails("test.manager@mail.com")
     @DisplayName("""
         DELETE /cars/{id} with id of existing car
         should delete car and return status code 204
@@ -215,7 +215,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager1@mail.com")
+    @WithUserDetails("test.manager@mail.com")
     @DisplayName("""
         DELETE /cars/{id} with id of non-existing car
         should return status code 404
