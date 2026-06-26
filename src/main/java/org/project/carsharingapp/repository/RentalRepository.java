@@ -10,19 +10,21 @@ import org.springframework.data.repository.query.Param;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
+
+    @EntityGraph(attributePaths = {"car"})
     @Query("""
-    SELECT r FROM Rental r
-    WHERE (:userId IS NULL OR r.user.id = :userId)
-    AND (:isActive IS NULL OR (r.actualReturnDate IS NULL) = :isActive)
-    """)
+            SELECT r FROM Rental r
+            WHERE (:userId IS NULL OR r.user.id = :userId)
+            AND (:isActive IS NULL OR (r.actualReturnDate IS NULL) = :isActive)
+            """)
     Page<Rental> findAllByFilters(
-        @Param("userId") Long userId,
-        @Param("isActive") Boolean isActive,
-        Pageable pageable
+            @Param("userId") Long userId,
+            @Param("isActive") Boolean isActive,
+            Pageable pageable
     );
 
-    @EntityGraph(attributePaths = {"car", "user"})
-    @Query("SELECT r FROM Rental r")
-    Page<Rental> findAllWithDetails(Pageable pageable);
+    @EntityGraph(attributePaths = {"car"})
+    @Query("SELECT r FROM Rental r WHERE r.id = :id")
+    Rental findByIdWithCar(@Param("id") Long id);
 
 }
