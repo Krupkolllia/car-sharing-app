@@ -1,5 +1,6 @@
 package org.project.carsharingapp.repository;
 
+import java.util.Optional;
 import org.project.carsharingapp.model.rental.Rental;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @EntityGraph(attributePaths = {"car"})
     @Query("SELECT r FROM Rental r WHERE r.id = :id")
-    Rental findByIdWithCar(@Param("id") Long id);
+    Optional<Rental> findByIdWithCar(@Param("id") Long id);
 
 }
