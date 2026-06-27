@@ -15,7 +15,9 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("""
             SELECT r FROM Rental r
             WHERE (:userId IS NULL OR r.user.id = :userId)
-            AND (:isActive IS NULL OR (r.actualReturnDate IS NULL) = :isActive)
+            AND (:isActive IS NULL
+            OR (:isActive = TRUE AND r.actualReturnDate IS NULL)
+            OR (:isActive = FALSE AND r.actualReturnDate IS NOT NULL))
             """)
     Page<Rental> findAllByFilters(
             @Param("userId") Long userId,
