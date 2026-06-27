@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
-
     @EntityGraph(attributePaths = {"car"})
     @Query("""
             SELECT r FROM Rental r
