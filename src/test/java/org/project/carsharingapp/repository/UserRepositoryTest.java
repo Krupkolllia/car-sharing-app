@@ -37,7 +37,10 @@ public class UserRepositoryTest {
         Optional<User> actual = userRepository.findByEmail(expected.getEmail());
 
         // Then
-        assertThat(actual).isPresent().get().isEqualTo(expected);
+        assertThat(actual).isPresent();
+        assertThat(actual).get()
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
     }
 
     @Test

@@ -20,18 +20,31 @@ public class TestDataHelper {
     public static final Long CUSTOMER_ID = 1L;
     public static final String CUSTOMER_RAW_PASSWORD = "testuser";
     public static final String CUSTOMER_MAIL = "test.user@mail.com";
+
+    public static final Long MANAGER_ID = 2L;
     public static final String MANAGER_MAIL = "test.manager@mail.com";
 
     public static final Long MOCK_USER_ID = 274L;
 
     public static User createTestCustomer() {
         return new User()
-            .setId(1L)
+            .setId(CUSTOMER_ID)
             .setEmail(CUSTOMER_MAIL)
             .setPassword("$2a$12$Bx.Pdcm6JggueZYewe1lC.1xWBtMr85se/AnlW4MujOefLH2izXoi")
             .setFirstName("test")
             .setLastName("user")
             .setRole(Role.CUSTOMER)
+            .setDeleted(false);
+    }
+
+    public static User createTestManager() {
+        return new User()
+            .setId(MANAGER_ID)
+            .setEmail(MANAGER_MAIL)
+            .setPassword("$2a$12$vfXgg4N72YCshq0/yEmAEe/LmF7qbpFhP3UgZarqI90bb4OLTZgiG")
+            .setFirstName("test")
+            .setLastName("manager")
+            .setRole(Role.MANAGER)
             .setDeleted(false);
     }
 
@@ -68,6 +81,7 @@ public class TestDataHelper {
 
     public static Car createCar() {
         return new Car()
+            .setId(CAR_ID)
             .setModel("M5")
             .setBrand("BMW")
             .setType(CarType.SEDAN)
