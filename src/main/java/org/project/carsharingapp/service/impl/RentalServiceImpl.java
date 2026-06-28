@@ -117,7 +117,12 @@ public class RentalServiceImpl implements RentalService {
 
         rental.setActualReturnDate(LocalDate.now());
 
-        carRepository.increaseInventory(rental.getCar().getId());
+        if (carRepository.increaseInventory(rental.getCar().getId()) == 0) {
+            throw new IllegalStateException(
+                "Failed to increase inventory for car with id " + rental.getCar().getId()
+            );
+        }
+
         entityManager.refresh(rental.getCar());
 
         notificationService.sendNotification(
