@@ -91,7 +91,7 @@ public class RentalServiceImpl implements RentalService {
         User currentUser = SecurityUtil.getAuthenticatedUser();
 
         if (currentUser.getRole() == Role.CUSTOMER
-                && rental.getUser().getId().equals(currentUser.getId())) {
+                && !rental.getUser().getId().equals(currentUser.getId())) {
             throw new EntityNotFoundException("Cannot find a rental with id " + id);
         }
 

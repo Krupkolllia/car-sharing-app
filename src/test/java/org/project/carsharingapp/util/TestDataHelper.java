@@ -1,14 +1,17 @@
 package org.project.carsharingapp.util;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.car.CarType;
+import org.project.carsharingapp.model.rental.Rental;
 import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
 
@@ -24,7 +27,8 @@ public class TestDataHelper {
     public static final Long MANAGER_ID = 2L;
     public static final String MANAGER_MAIL = "test.manager@mail.com";
 
-    public static final Long MOCK_USER_ID = 274L;
+    public static final Long MOCK_CUSTOMER_ID = 274L;
+    public static final Long MOCK_MANAGER_ID = 275L;
 
     public static User createTestCustomer() {
         return new User()
@@ -34,6 +38,28 @@ public class TestDataHelper {
             .setFirstName("test")
             .setLastName("user")
             .setRole(Role.CUSTOMER)
+            .setDeleted(false);
+    }
+
+    public static User createAuthenticatedMockCustomer() {
+        return new User()
+            .setId(MOCK_CUSTOMER_ID)
+            .setEmail("authenticated.customer@mail.com")
+            .setPassword("$2a$12$cuqVS1le4LFkmqanwe.7NudRiWdhwv4wGfTmwjMRXcwiiPNraRYEK")
+            .setFirstName("test")
+            .setLastName("test")
+            .setRole(Role.CUSTOMER)
+            .setDeleted(false);
+    }
+
+    public static User createAuthenticatedMockManager() {
+        return new User()
+            .setId(MOCK_MANAGER_ID)
+            .setEmail("authenticated.manager@mail.com")
+            .setPassword("$2a$12$R6t1xX3g8BmJ5wr2eaXPVOY/Bes3KPfQNR/zZqw/4zSnycLScw.gS")
+            .setFirstName("test")
+            .setLastName("test")
+            .setRole(Role.MANAGER)
             .setDeleted(false);
     }
 
@@ -117,4 +143,34 @@ public class TestDataHelper {
 
         return responseDtoList;
     }
+
+    public static Rental createRental() {
+        return new Rental()
+            .setId(1L)
+            .setRentalDate(LocalDate.of(2026, 6, 1))
+            .setReturnDate(LocalDate.of(2026, 6, 10))
+            .setActualReturnDate(null)
+            .setCar(createCar())
+            .setUser(createAuthenticatedMockCustomer());
+    }
+
+    public static RentalResponseDto createRentalResponseDto() {
+        CarResponseDto car = createCarResponseDtoWithId();
+        return new RentalResponseDto(
+            1L, LocalDate.of(2026, 6, 1),
+            LocalDate.of(2026, 6, 10),
+            null, car, MOCK_CUSTOMER_ID
+        );
+    }
+
+    public static RentalResponseDto createReturnedRentalResponseDto() {
+        CarResponseDto car = createCarResponseDtoWithId();
+        return new RentalResponseDto(
+            1L, LocalDate.of(2026, 6, 1),
+            LocalDate.of(2026, 6, 10),
+            null, car, MOCK_CUSTOMER_ID
+        );
+    }
+
+
 }

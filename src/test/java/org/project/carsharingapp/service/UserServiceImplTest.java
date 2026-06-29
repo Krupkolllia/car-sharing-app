@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.project.carsharingapp.util.TestDataHelper.MOCK_USER_ID;
+import static org.project.carsharingapp.util.TestDataHelper.createAuthenticatedMockCustomer;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 
 import java.util.Optional;
@@ -51,14 +51,7 @@ public class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        authenticatedUser = new User()
-            .setId(MOCK_USER_ID)
-            .setEmail("authenticated.user@mail.com")
-            .setPassword("$2a$12$tl2qvjC6WLeuVHC8ooh8e.0ILcRTQOPSsbJndD.HIbyTQ98p1ihKm")
-            .setFirstName("test")
-            .setLastName("test")
-            .setRole(Role.CUSTOMER)
-            .setDeleted(false);
+        authenticatedUser = createAuthenticatedMockCustomer();
 
         securityUtilMock = mockStatic(SecurityUtil.class);
         securityUtilMock.when(SecurityUtil::getAuthenticatedUser)
