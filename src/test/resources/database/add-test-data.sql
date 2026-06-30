@@ -20,7 +20,6 @@ SELECT setval('cars_id_seq', (SELECT MAX(id) FROM cars));
 INSERT INTO rentals (id, rental_date, return_date, actual_return_date, car_id, user_id)
 VALUES
     (1, '2026-06-01', '2026-06-10', NULL, 1, 1),
-    (2, '2026-05-01', '2026-05-10', '2026-05-09', 2, 1),
-    (3, '2026-06-05', '2026-06-15', NULL, 3, 2);
+    (2, '2026-06-01', '2026-06-10', '2026-06-11', 2, 1);
 
 SELECT setval('rentals_id_seq', (SELECT MAX(id) FROM rentals));

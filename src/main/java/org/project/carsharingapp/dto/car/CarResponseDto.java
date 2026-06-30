@@ -1,7 +1,9 @@
 package org.project.carsharingapp.dto.car;
 
 import java.math.BigDecimal;
+import lombok.With;
 
+@With
 public record CarResponseDto(
         Long id,
         String model,

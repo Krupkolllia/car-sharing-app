@@ -27,7 +27,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-    @WithUserDetails(value = CUSTOMER_MAIL)
+    @WithUserDetails(CUSTOMER_MAIL)
     @DisplayName("""
         GET /users/me should return response with
         user profile info and status code 200

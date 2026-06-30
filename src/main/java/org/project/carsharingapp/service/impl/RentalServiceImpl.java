@@ -1,6 +1,7 @@
 package org.project.carsharingapp.service.impl;
 
 import jakarta.persistence.EntityManager;
+import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
@@ -39,6 +40,8 @@ public class RentalServiceImpl implements RentalService {
 
     private final NotificationService notificationService;
 
+    private final Clock clock;
+
     @Override
     public RentalResponseDto createRental(RentalRequestDto requestDto) {
         Long carId = requestDto.carId();
@@ -56,7 +59,7 @@ public class RentalServiceImpl implements RentalService {
 
         Rental rental = new Rental()
                 .setUser(SecurityUtil.getAuthenticatedUser())
-                .setRentalDate(LocalDate.now())
+                .setRentalDate(LocalDate.now(clock))
                 .setReturnDate(requestDto.returnDate())
                 .setCar(car);
 

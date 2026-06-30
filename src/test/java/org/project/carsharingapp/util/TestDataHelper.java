@@ -1,5 +1,7 @@
 package org.project.carsharingapp.util;
 
+import static org.project.carsharingapp.config.TestClockConfig.FIXED_RENTAL_DATE;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,8 +29,8 @@ public class TestDataHelper {
     public static final Long MANAGER_ID = 2L;
     public static final String MANAGER_MAIL = "test.manager@mail.com";
 
-    public static final Long MOCK_CUSTOMER_ID = 274L;
-    public static final Long MOCK_MANAGER_ID = 275L;
+    public static final LocalDate FIXED_RETURN_DATE = LocalDate.of(2026, 6, 10);
+
 
     public static User createTestCustomer() {
         return new User()
@@ -38,28 +40,6 @@ public class TestDataHelper {
             .setFirstName("test")
             .setLastName("user")
             .setRole(Role.CUSTOMER)
-            .setDeleted(false);
-    }
-
-    public static User createAuthenticatedMockCustomer() {
-        return new User()
-            .setId(MOCK_CUSTOMER_ID)
-            .setEmail("authenticated.customer@mail.com")
-            .setPassword("$2a$12$cuqVS1le4LFkmqanwe.7NudRiWdhwv4wGfTmwjMRXcwiiPNraRYEK")
-            .setFirstName("test")
-            .setLastName("test")
-            .setRole(Role.CUSTOMER)
-            .setDeleted(false);
-    }
-
-    public static User createAuthenticatedMockManager() {
-        return new User()
-            .setId(MOCK_MANAGER_ID)
-            .setEmail("authenticated.manager@mail.com")
-            .setPassword("$2a$12$R6t1xX3g8BmJ5wr2eaXPVOY/Bes3KPfQNR/zZqw/4zSnycLScw.gS")
-            .setFirstName("test")
-            .setLastName("test")
-            .setRole(Role.MANAGER)
             .setDeleted(false);
     }
 
@@ -77,12 +57,6 @@ public class TestDataHelper {
     public static UserProfileResponseDto createTestCustomerProfileResponseDto() {
         return new UserProfileResponseDto(
             CUSTOMER_MAIL, "test", "user", Role.CUSTOMER.name()
-        );
-    }
-
-    public static UserProfileResponseDto createTestManagerProfileResponseDto() {
-        return new UserProfileResponseDto(
-            MANAGER_MAIL, "test", "manager", Role.MANAGER.name()
         );
     }
 
@@ -147,28 +121,27 @@ public class TestDataHelper {
     public static Rental createRental() {
         return new Rental()
             .setId(1L)
-            .setRentalDate(LocalDate.of(2026, 6, 1))
-            .setReturnDate(LocalDate.of(2026, 6, 10))
+            .setRentalDate(FIXED_RENTAL_DATE)
+            .setReturnDate(FIXED_RETURN_DATE)
             .setActualReturnDate(null)
             .setCar(createCar())
-            .setUser(createAuthenticatedMockCustomer());
+            .setUser(createTestCustomer());
     }
 
     public static RentalResponseDto createRentalResponseDto() {
         CarResponseDto car = createCarResponseDtoWithId();
         return new RentalResponseDto(
-            1L, LocalDate.of(2026, 6, 1),
-            LocalDate.of(2026, 6, 10),
-            null, car, MOCK_CUSTOMER_ID
+            1L, FIXED_RENTAL_DATE,
+            FIXED_RETURN_DATE,
+            null, car, CUSTOMER_ID
         );
     }
 
     public static RentalResponseDto createReturnedRentalResponseDto() {
         CarResponseDto car = createCarResponseDtoWithId();
         return new RentalResponseDto(
-            1L, LocalDate.of(2026, 6, 1),
-            LocalDate.of(2026, 6, 10),
-            null, car, MOCK_CUSTOMER_ID
+            1L, FIXED_RENTAL_DATE, FIXED_RETURN_DATE,
+            null, car, CUSTOMER_ID
         );
     }
 
