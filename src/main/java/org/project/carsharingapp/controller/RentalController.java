@@ -26,20 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/rentals")
 public class RentalController {
 
-    private static final String ROLE_CUSTOMER = "hasRole('CUSTOMER')";
+    private static final String HAS_ROLE_CUSTOMER = "hasRole('CUSTOMER')";
+    private static final String HAS_ROLE_CUSTOMER_OR_MANAGER =
+            "hasAnyRole('CUSTOMER', 'MANAGER')";
 
     private final RentalService rentalService;
 
     @Operation(summary = "Create a new rental")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize(ROLE_CUSTOMER)
+    @PreAuthorize(HAS_ROLE_CUSTOMER)
     @PostMapping
     public RentalResponseDto createRental(@Valid @RequestBody RentalRequestDto requestDto) {
         return rentalService.createRental(requestDto);
     }
 
     @Operation(summary = "Get rentals by user id and active status")
-    @PreAuthorize(ROLE_CUSTOMER)
+    @PreAuthorize(HAS_ROLE_CUSTOMER_OR_MANAGER)
     @GetMapping
     public Page<RentalResponseDto> getAll(
             @RequestParam(value = "user_id", required = false) Long userId,
@@ -50,14 +52,14 @@ public class RentalController {
     }
 
     @Operation(summary = "Get a rental by id")
-    @PreAuthorize(ROLE_CUSTOMER)
+    @PreAuthorize(HAS_ROLE_CUSTOMER_OR_MANAGER)
     @GetMapping("/{id}")
     public RentalResponseDto getById(@PathVariable Long id) {
         return rentalService.findById(id);
     }
 
     @Operation(summary = "Return a rental")
-    @PreAuthorize(ROLE_CUSTOMER)
+    @PreAuthorize(HAS_ROLE_CUSTOMER_OR_MANAGER)
     @PostMapping("/{id}/return")
     public RentalResponseDto returnRental(@PathVariable Long id) {
         return rentalService.returnRental(id);
