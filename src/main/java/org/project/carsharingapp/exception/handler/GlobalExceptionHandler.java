@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.LoginException;
+import org.project.carsharingapp.exception.NoAvailableCarsException;
 import org.project.carsharingapp.exception.RegistrationException;
+import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,60 +24,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleEntityNotFound(
             EntityNotFoundException e, HttpServletRequest request
     ) {
-        return buildResponse(
-            HttpStatus.NOT_FOUND,
-            e.getMessage(),
-            request.getRequestURI(),
-            Map.of()
-        );
+        return handle(e, request, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RegistrationException.class)
-    public ResponseEntity<ExceptionResponse> handleRegistrationException(
-            RegistrationException e, HttpServletRequest request
+    @ExceptionHandler({
+        RegistrationException.class,
+        NoAvailableCarsException.class,
+        RentalAlreadyReturnedException.class
+    })
+    public ResponseEntity<ExceptionResponse> handleConflict(
+            RuntimeException e, HttpServletRequest request
     ) {
-        return buildResponse(
-            HttpStatus.CONFLICT,
-            e.getMessage(),
-            request.getRequestURI(),
-            Map.of()
-        );
+        return handle(e, request, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(LoginException.class)
-    public ResponseEntity<ExceptionResponse> handleLoginException(
-            LoginException e, HttpServletRequest request
+    @ExceptionHandler({
+        LoginException.class,
+        AuthenticationException.class
+    })
+    public ResponseEntity<ExceptionResponse> handleUnauthorized(
+            RuntimeException e, HttpServletRequest request
     ) {
-        return buildResponse(
-            HttpStatus.UNAUTHORIZED,
-            e.getMessage(),
-            request.getRequestURI(),
-            Map.of()
-        );
+        return handle(e, request, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(
+    public ResponseEntity<ExceptionResponse> handleAccessDenied(
             AccessDeniedException e, HttpServletRequest request
     ) {
-        return buildResponse(
-            HttpStatus.FORBIDDEN,
-            e.getMessage(),
-            request.getRequestURI(),
-            Map.of()
-        );
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ExceptionResponse> handleAuthenticationException(
-            AuthenticationException e, HttpServletRequest request
-    ) {
-        return buildResponse(
-            HttpStatus.UNAUTHORIZED,
-            e.getMessage(),
-            request.getRequestURI(),
-            Map.of()
-        );
+        return handle(e, request, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -87,9 +64,10 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
+
         return buildResponse(
             HttpStatus.BAD_REQUEST,
-            e.getMessage(),
+            "Validation failed",
             request.getRequestURI(),
             errors
         );
@@ -102,9 +80,28 @@ public class GlobalExceptionHandler {
         return buildResponse(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "An unexpected error occurred",
-            request.getRequestURI(),
-            Map.of()
+            request.getRequestURI()
         );
+    }
+
+    private ResponseEntity<ExceptionResponse> handle(
+            Exception e,
+            HttpServletRequest request,
+            HttpStatus status
+    ) {
+        return buildResponse(
+            status,
+            e.getMessage(),
+            request.getRequestURI()
+        );
+    }
+
+    private ResponseEntity<ExceptionResponse> buildResponse(
+            HttpStatus status,
+            String message,
+            String path
+    ) {
+        return buildResponse(status, message, path, Map.of());
     }
 
     private ResponseEntity<ExceptionResponse> buildResponse(
@@ -123,5 +120,4 @@ public class GlobalExceptionHandler {
                 errors
             ));
     }
-
 }

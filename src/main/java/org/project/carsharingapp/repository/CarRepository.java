@@ -13,7 +13,6 @@ public interface CarRepository extends JpaRepository<Car, Long> {
             UPDATE Car c
             SET c.inventory = c.inventory + 1
             WHERE c.id = :carId
-            AND c.inventory > 0
             """)
     int increaseInventory(@Param("carId") Long carId);
 

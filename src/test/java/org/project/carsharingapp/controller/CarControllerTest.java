@@ -2,6 +2,7 @@ package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
+import static org.project.carsharingapp.util.TestDataHelper.MANAGER_MAIL;
 import static org.project.carsharingapp.util.TestDataHelper.createCarRequestDto;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDto;
 import static org.project.carsharingapp.util.TestDataHelper.createCarResponseDtoList;
@@ -32,7 +33,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager@mail.com")
+    @WithUserDetails(MANAGER_MAIL)
     @DisplayName("""
         POST /cars with valid request dto
         should return created car and status code 201
@@ -139,7 +140,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager@mail.com")
+    @WithUserDetails(MANAGER_MAIL)
     @DisplayName("""
         PATCH /cars/{id} with id of existing car
         should return updated car and status code 200
@@ -172,7 +173,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager@mail.com")
+    @WithUserDetails(MANAGER_MAIL)
     @DisplayName("""
         PATCH /cars/{id} with id of non-existing car
         should return status code 404
@@ -195,7 +196,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager@mail.com")
+    @WithUserDetails(MANAGER_MAIL)
     @DisplayName("""
         DELETE /cars/{id} with id of existing car
         should delete car and return status code 204
@@ -215,7 +216,7 @@ public class CarControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails("test.manager@mail.com")
+    @WithUserDetails(MANAGER_MAIL)
     @DisplayName("""
         DELETE /cars/{id} with id of non-existing car
         should return status code 404
