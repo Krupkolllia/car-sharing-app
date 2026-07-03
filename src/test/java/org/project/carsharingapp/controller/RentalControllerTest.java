@@ -119,7 +119,7 @@ public class RentalControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails(MANAGER_MAIL)
+    @WithUserDetails(CUSTOMER_MAIL)
     @DisplayName("""
         POST /rentals with id of non-existing car should
         return 404 response status code
@@ -144,7 +144,7 @@ public class RentalControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
-    @WithUserDetails(MANAGER_MAIL)
+    @WithUserDetails(CUSTOMER_MAIL)
     @DisplayName("""
         POST /rentals when the car has 0 inventory should
         return response status code 409
