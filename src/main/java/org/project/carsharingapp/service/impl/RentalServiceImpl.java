@@ -118,7 +118,7 @@ public class RentalServiceImpl implements RentalService {
                 "Rental is already returned. Rental id: " + id);
         }
 
-        rental.setActualReturnDate(LocalDate.now());
+        rental.setActualReturnDate(LocalDate.now(clock));
 
         if (carRepository.increaseInventory(rental.getCar().getId()) == 0) {
             throw new IllegalStateException(

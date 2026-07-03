@@ -1,6 +1,6 @@
 package org.project.carsharingapp.util;
 
-import static org.project.carsharingapp.config.TestClockConfig.FIXED_RENTAL_DATE;
+import static org.project.carsharingapp.config.TestClockConfig.FIXED_NOW;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,7 +31,6 @@ public class TestDataHelper {
 
     public static final LocalDate FIXED_RETURN_DATE = LocalDate.of(2026, 6, 10);
 
-
     public static User createTestCustomer() {
         return new User()
             .setId(CUSTOMER_ID)
@@ -52,6 +51,15 @@ public class TestDataHelper {
             .setLastName("manager")
             .setRole(Role.MANAGER)
             .setDeleted(false);
+    }
+
+    public static User createAnotherUser() {
+        return new User()
+            .setEmail("another.user@mail.com")
+            .setPassword("$2a$12$TQMKeSp.5LpFuFjf7qDvZeoiMzCPQo1EDQWTVNpXG3LAWnrpPZC5a")
+            .setFirstName("another")
+            .setLastName("user")
+            .setRole(Role.CUSTOMER);
     }
 
     public static UserProfileResponseDto createTestCustomerProfileResponseDto() {
@@ -121,7 +129,7 @@ public class TestDataHelper {
     public static Rental createRental() {
         return new Rental()
             .setId(1L)
-            .setRentalDate(FIXED_RENTAL_DATE)
+            .setRentalDate(FIXED_NOW)
             .setReturnDate(FIXED_RETURN_DATE)
             .setActualReturnDate(null)
             .setCar(createCar())
@@ -131,19 +139,10 @@ public class TestDataHelper {
     public static RentalResponseDto createRentalResponseDto() {
         CarResponseDto car = createCarResponseDtoWithId();
         return new RentalResponseDto(
-            1L, FIXED_RENTAL_DATE,
+            1L, FIXED_NOW,
             FIXED_RETURN_DATE,
             null, car, CUSTOMER_ID
         );
     }
-
-    public static RentalResponseDto createReturnedRentalResponseDto() {
-        CarResponseDto car = createCarResponseDtoWithId();
-        return new RentalResponseDto(
-            1L, FIXED_RENTAL_DATE, FIXED_RETURN_DATE,
-            null, car, CUSTOMER_ID
-        );
-    }
-
 
 }

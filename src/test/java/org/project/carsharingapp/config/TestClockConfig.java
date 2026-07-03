@@ -12,10 +12,10 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 public class TestClockConfig {
     public static final ZoneId TEST_ZONE = ZoneId.of("Europe/Warsaw");
 
-    public static final LocalDate FIXED_RENTAL_DATE = LocalDate.of(2026, 6, 1);
+    public static final LocalDate FIXED_NOW = LocalDate.of(2026, 6, 1);
 
     public static final Clock FIXED_CLOCK = Clock.fixed(
-        FIXED_RENTAL_DATE.atStartOfDay(TEST_ZONE).toInstant(),
+        FIXED_NOW.atStartOfDay(TEST_ZONE).toInstant(),
         TEST_ZONE
     );
 

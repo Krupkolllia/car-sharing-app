@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
-import static org.project.carsharingapp.util.TestDataHelper.FIXED_RETURN_DATE;
 import static org.project.carsharingapp.util.TestDataHelper.createCar;
 import static org.project.carsharingapp.util.TestDataHelper.createRental;
 import static org.project.carsharingapp.util.TestDataHelper.createRentalResponseDto;
@@ -32,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.project.carsharingapp.config.TestClockConfig;
+import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
@@ -45,7 +46,7 @@ import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
 import org.project.carsharingapp.service.impl.RentalServiceImpl;
-import org.project.carsharingapp.config.TestClockConfig;
+import org.project.carsharingapp.util.TestDataHelper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -114,7 +115,7 @@ public class RentalServiceImplTest {
         Car car = createCar();
 
         RentalRequestDto requestDto = new RentalRequestDto(
-            FIXED_RETURN_DATE, car.getId()
+            TestDataHelper.FIXED_RETURN_DATE, car.getId()
         );
 
         Rental expectedRental = createRental();
@@ -170,7 +171,7 @@ public class RentalServiceImplTest {
         Long invalidId = 404L;
 
         RentalRequestDto requestDto = new RentalRequestDto(
-            FIXED_RETURN_DATE, invalidId
+            TestDataHelper.FIXED_RETURN_DATE, invalidId
         );
 
         when(carRepository.findById(invalidId)).thenReturn(Optional.empty());
@@ -198,7 +199,7 @@ public class RentalServiceImplTest {
         Car car = createCar();
 
         RentalRequestDto requestDto = new RentalRequestDto(
-            FIXED_RETURN_DATE, car.getId()
+            TestDataHelper.FIXED_RETURN_DATE, car.getId()
         );
 
         when(carRepository.findById(car.getId())).thenReturn(Optional.of(car));
@@ -443,6 +444,11 @@ public class RentalServiceImplTest {
         RentalResponseDto expected = createRentalResponseDto()
             .withActualReturnDate(LocalDate.now());
 
+        CarResponseDto expectedCar = expected.car();
+
+        expected = expected
+            .withCar(expectedCar.withInventory(expectedCar.inventory() + 1));
+
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
 
@@ -459,7 +465,7 @@ public class RentalServiceImplTest {
             .usingRecursiveComparison()
             .isEqualTo(expected);
 
-        assertThat(rental.getActualReturnDate()).isEqualTo(LocalDate.now());
+        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_NOW);
 
         verify(rentalRepository).findByIdWithCar(rental.getId());
 
@@ -513,7 +519,7 @@ public class RentalServiceImplTest {
         // Given
         Rental rental = createRental();
         RentalResponseDto expected = createRentalResponseDto()
-            .withActualReturnDate(LocalDate.of(2026, 6, 11));
+            .withActualReturnDate(TestClockConfig.FIXED_NOW);
 
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
@@ -532,7 +538,7 @@ public class RentalServiceImplTest {
             .usingRecursiveComparison()
             .isEqualTo(expected);
 
-        assertThat(rental.getActualReturnDate()).isEqualTo(LocalDate.now());
+        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_NOW);
 
         verify(rentalRepository).findByIdWithCar(rental.getId());
 
@@ -591,7 +597,7 @@ public class RentalServiceImplTest {
     void returnRental_WhenRentalIsAlreadyReturned_ShouldThrowRentalAlreadyReturnedException() {
         // Given
         Rental rental = createRental();
-        rental.setActualReturnDate(LocalDate.of(2026, 6, 11));
+        rental.setActualReturnDate(TestClockConfig.FIXED_NOW);
 
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
