@@ -128,9 +128,6 @@ public class RentalServiceImpl implements RentalService {
 
         entityManager.refresh(rental.getCar());
 
-        notificationService.sendNotification(
-                TelegramMessageBuilder.buildRentalReturnedMessage(rental));
-
         return rentalMapper.toDto(rental);
     }
 }

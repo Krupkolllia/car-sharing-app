@@ -475,12 +475,9 @@ public class RentalServiceImplTest {
 
         verify(entityManager).refresh(rental.getCar());
 
-        verify(notificationService).sendNotification(anyString());
-
         verify(rentalMapper).toDto(rental);
 
-        verifyNoMoreInteractions(rentalRepository, carRepository,
-            entityManager, notificationService, rentalMapper);
+        verifyNoMoreInteractions(rentalRepository, carRepository, entityManager, rentalMapper);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -504,7 +501,7 @@ public class RentalServiceImplTest {
         verify(rentalRepository).findByIdWithCar(invalidId);
         verifyNoMoreInteractions(rentalRepository);
 
-        verifyNoInteractions(carRepository, entityManager, notificationService, rentalMapper);
+        verifyNoInteractions(carRepository, entityManager, rentalMapper);
         securityUtilMock.verifyNoInteractions();
 
     }
@@ -548,12 +545,9 @@ public class RentalServiceImplTest {
 
         verify(entityManager).refresh(rental.getCar());
 
-        verify(notificationService).sendNotification(anyString());
-
         verify(rentalMapper).toDto(rental);
 
-        verifyNoMoreInteractions(rentalRepository, carRepository, entityManager,
-            notificationService, rentalMapper);
+        verifyNoMoreInteractions(rentalRepository, carRepository, entityManager, rentalMapper);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -585,7 +579,7 @@ public class RentalServiceImplTest {
         verifyNoMoreInteractions(rentalRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(carRepository, entityManager, notificationService, rentalMapper);
+        verifyNoInteractions(carRepository, entityManager, rentalMapper);
 
     }
 
@@ -614,7 +608,7 @@ public class RentalServiceImplTest {
         verifyNoMoreInteractions(rentalRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(carRepository, entityManager, notificationService, rentalMapper);
+        verifyNoInteractions(carRepository, entityManager, rentalMapper);
 
     }
 
@@ -648,7 +642,7 @@ public class RentalServiceImplTest {
         verifyNoMoreInteractions(rentalRepository, carRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(entityManager, notificationService, rentalMapper);
+        verifyNoInteractions(entityManager, rentalMapper);
 
     }
 
