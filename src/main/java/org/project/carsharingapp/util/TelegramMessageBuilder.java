@@ -51,46 +51,4 @@ public final class TelegramMessageBuilder {
             car.getInventory()
         );
     }
-
-    public static String buildRentalReturnedMessage(Rental rental) {
-        return """
-            Rental returned
-
-            Rental:
-            * ID: %d
-            * Rental date: %s
-            * Return date: %s
-            * Actual return date: %s
-
-            Customer:
-            * ID: %d
-            * First name: %s
-            * Last name: %s
-            * Email: %s
-
-            Car:
-            * ID: %d
-            * Brand: %s
-            * Model: %s
-            * Type: %s
-            * Daily fee: $%s
-            * Available cars: %d
-            """.formatted(
-            rental.getId(),
-            rental.getRentalDate(),
-            rental.getReturnDate(),
-            rental.getActualReturnDate(),
-            rental.getUser().getId(),
-            rental.getUser().getFirstName(),
-            rental.getUser().getLastName(),
-            rental.getUser().getEmail(),
-            rental.getCar().getId(),
-            rental.getCar().getBrand(),
-            rental.getCar().getModel(),
-            rental.getCar().getType(),
-            rental.getCar().getDailyFee(),
-            rental.getCar().getInventory()
-        );
-    }
-
 }
