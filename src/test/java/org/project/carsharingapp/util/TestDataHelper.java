@@ -19,6 +19,7 @@ import org.project.carsharingapp.model.user.User;
 
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
+    public static final String ADD_RENTAL_SCRIPT_PATH = "classpath:database/add-rental-test-data.sql";
 
     public static final Long CAR_ID = 1L;
 
