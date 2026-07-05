@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
 import static org.project.carsharingapp.util.TestDataHelper.createCar;
 import static org.project.carsharingapp.util.TestDataHelper.createRental;
+import static org.project.carsharingapp.util.TestDataHelper.createRentalMessageDto;
 import static org.project.carsharingapp.util.TestDataHelper.createRentalResponseDto;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import static org.project.carsharingapp.util.TestDataHelper.createTestManager;
@@ -126,6 +127,9 @@ public class RentalServiceImplTest {
 
         when(carRepository.decreaseInventory(car.getId())).thenReturn(1);
 
+        when(rentalMapper.toMessageDto(any(Rental.class)))
+            .thenReturn(createRentalMessageDto());
+
         when(rentalMapper.toDto(any(Rental.class))).thenReturn(expected);
     
         // When
@@ -155,6 +159,7 @@ public class RentalServiceImplTest {
         verify(notificationService).sendNotification(anyString());
 
         verify(rentalMapper).toDto(any(Rental.class));
+        verify(rentalMapper).toMessageDto(any(Rental.class));
 
         verifyNoMoreInteractions(carRepository, rentalMapper, entityManager, notificationService);
         securityUtilMock.verifyNoMoreInteractions();

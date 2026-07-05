@@ -9,6 +9,7 @@ import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
@@ -143,6 +144,24 @@ public class TestDataHelper {
             1L, FIXED_NOW,
             FIXED_RETURN_DATE,
             null, car, CUSTOMER_ID
+        );
+    }
+
+    public static RentalMessageDto createRentalMessageDto() {
+        return new RentalMessageDto(
+            1L,
+            LocalDate.of(2026, 7, 6),
+            LocalDate.of(2026, 7, 10),
+            1L,
+            "customer@test.com",
+            "John",
+            "Doe",
+            1L,
+            "BMW",
+            "X5",
+            CarType.SUV,
+            BigDecimal.valueOf(100),
+            3
         );
     }
 

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.carsharingapp.config.TestClockConfig;
+import org.project.carsharingapp.mapper.RentalMapper;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.service.impl.RentalSchedulerImpl;
 
@@ -17,6 +18,9 @@ public class RentalSchedulerImplTest {
     private RentalRepository rentalRepository;
 
     @Mock
+    private RentalMapper rentalMapper;
+
+    @Mock
     private NotificationService notificationService;
 
     private RentalSchedulerImpl rentalScheduler;
@@ -25,6 +29,7 @@ public class RentalSchedulerImplTest {
     void setUp() {
         rentalScheduler = new RentalSchedulerImpl(
             rentalRepository,
+            rentalMapper,
             notificationService,
             TestClockConfig.FIXED_CLOCK
         );

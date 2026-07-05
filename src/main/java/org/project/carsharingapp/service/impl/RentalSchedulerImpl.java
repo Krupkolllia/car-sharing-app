@@ -4,11 +4,12 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.project.carsharingapp.mapper.RentalMapper;
 import org.project.carsharingapp.model.rental.Rental;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.service.NotificationService;
 import org.project.carsharingapp.service.RentalScheduler;
-import org.project.carsharingapp.util.TelegramMessageBuilder;
+import org.project.carsharingapp.telegram.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,8 @@ public class RentalSchedulerImpl implements RentalScheduler {
     private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
     private final RentalRepository rentalRepository;
+
+    private final RentalMapper rentalMapper;
 
     private final NotificationService notificationService;
 
@@ -37,6 +40,6 @@ public class RentalSchedulerImpl implements RentalScheduler {
 
         overdueRentals.forEach(rental ->
                 notificationService.sendNotification(
-                    TelegramMessageBuilder.buildOverdueRentalMessage(rental)));
+                    MessageBuilder.buildOverdueRentalMessage(rentalMapper.toMessageDto(rental))));
     }
 }

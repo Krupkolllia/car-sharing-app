@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
@@ -19,7 +20,7 @@ import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
 import org.project.carsharingapp.service.NotificationService;
 import org.project.carsharingapp.service.RentalService;
-import org.project.carsharingapp.util.TelegramMessageBuilder;
+import org.project.carsharingapp.telegram.MessageBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -65,8 +66,10 @@ public class RentalServiceImpl implements RentalService {
 
         rentalRepository.save(rental);
 
+        RentalMessageDto rentalMessageDto = rentalMapper.toMessageDto(rental);
+
         notificationService.sendNotification(
-                TelegramMessageBuilder.buildRentalCreatedMessage(rental));
+                MessageBuilder.buildRentalCreatedMessage(rentalMessageDto));
 
         return rentalMapper.toDto(rental);
     }
