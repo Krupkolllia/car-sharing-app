@@ -16,20 +16,22 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RentalSchedulerImpl implements RentalScheduler {
 
+    private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
+
     private final RentalRepository rentalRepository;
 
     private final NotificationService notificationService;
 
     private final Clock clock;
 
-    @Scheduled(cron = "0 0 8 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @Override
     public void checkOverdueRentals() {
         List<Rental> overdueRentals =
-                rentalRepository.findAllOverdue(LocalDate.now(clock).plusDays(1));
+                rentalRepository.findAllOverdue(LocalDate.now(clock));
 
         if (overdueRentals.isEmpty()) {
-            notificationService.sendNotification("No rentals overdue today!");
+            notificationService.sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
             return;
         }
 

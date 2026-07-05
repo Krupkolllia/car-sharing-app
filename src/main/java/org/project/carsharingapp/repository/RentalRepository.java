@@ -35,8 +35,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("""
             SELECT r FROM Rental r
             WHERE r.actualReturnDate IS NULL
-            AND r.returnDate <= :tomorrow
+            AND r.returnDate < :maxReturnDate
             """)
-    List<Rental> findAllOverdue(@Param("tomorrow") LocalDate tomorrow);
+    List<Rental> findAllOverdue(@Param("maxReturnDate") LocalDate maxReturnDate);
 
 }

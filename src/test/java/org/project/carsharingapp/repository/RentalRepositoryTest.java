@@ -5,7 +5,6 @@ import static org.project.carsharingapp.util.TestDataHelper.ADD_RENTAL_SCRIPT_PA
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.Hibernate;
@@ -27,9 +26,6 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import(TestClockConfig.class)
 public class RentalRepositoryTest {
-
-    private final static LocalDate TOMORROW =
-        TestClockConfig.FIXED_NOW.plusDays(1);
 
     @Autowired
     private RentalRepository rentalRepository;
@@ -237,11 +233,11 @@ public class RentalRepositoryTest {
         // Given
         List<Rental> expected = rentalRepository.findAll().stream()
             .filter(rental -> rental.getActualReturnDate() == null)
-            .filter(rental -> !rental.getReturnDate().isAfter(TOMORROW))
+            .filter(rental -> rental.getReturnDate().isBefore(TestClockConfig.FIXED_NOW))
             .toList();
 
         // When
-        List<Rental> actual = rentalRepository.findAllOverdue(TOMORROW);
+        List<Rental> actual = rentalRepository.findAllOverdue(TestClockConfig.FIXED_NOW);
 
         // Then
         assertThat(actual)
@@ -250,7 +246,7 @@ public class RentalRepositoryTest {
 
         actual.forEach(rental -> {
                 assertThat(rental.getActualReturnDate() == null).isTrue();
-                assertThat(!rental.getReturnDate().isAfter(TOMORROW)).isTrue();
+                assertThat(rental.getReturnDate().isBefore(TestClockConfig.FIXED_NOW)).isTrue();
                 assertThat(Hibernate.isInitialized(rental.getCar())).isTrue();
             });
 
@@ -269,13 +265,13 @@ public class RentalRepositoryTest {
             .toList();
 
         activeRentals.forEach(rental ->
-            rental.setReturnDate(TOMORROW.plusDays(10))
+            rental.setReturnDate(TestClockConfig.FIXED_NOW.plusDays(10))
         );
 
         rentalRepository.saveAllAndFlush(activeRentals);
         
         // When
-        List<Rental> actual = rentalRepository.findAllOverdue(TOMORROW);
+        List<Rental> actual = rentalRepository.findAllOverdue(TestClockConfig.FIXED_NOW);
 
         // Then
         assertThat(actual).isEmpty();
@@ -293,17 +289,16 @@ public class RentalRepositoryTest {
         // Given
         List<Rental> notExpected = rentalRepository.findAll().stream()
             .filter(rental -> rental.getActualReturnDate() != null)
-            .filter(rental -> !rental.getReturnDate().isAfter(TOMORROW))
+            .filter(rental -> rental.getReturnDate().isBefore(TestClockConfig.FIXED_NOW))
             .toList();
 
         List<Rental> expected = rentalRepository.findAll().stream()
             .filter(rental -> rental.getActualReturnDate() == null)
-            .filter(rental -> !rental.getReturnDate().isAfter(TOMORROW))
+            .filter(rental -> rental.getReturnDate().isBefore(TestClockConfig.FIXED_NOW))
             .toList();
 
-        
         // When
-        List<Rental> actual = rentalRepository.findAllOverdue(TOMORROW);
+        List<Rental> actual = rentalRepository.findAllOverdue(TestClockConfig.FIXED_NOW);
         
         // Then
         assertThat(notExpected).isNotEmpty();
@@ -315,7 +310,7 @@ public class RentalRepositoryTest {
 
         actual.forEach(rental -> {
             assertThat(rental.getActualReturnDate() == null).isTrue();
-            assertThat(!rental.getReturnDate().isAfter(TOMORROW)).isTrue();
+            assertThat(rental.getReturnDate().isBefore(TestClockConfig.FIXED_NOW)).isTrue();
             assertThat(Hibernate.isInitialized(rental.getCar()));
         });
 
