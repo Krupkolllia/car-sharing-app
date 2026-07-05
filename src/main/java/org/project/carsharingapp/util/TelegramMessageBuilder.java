@@ -51,4 +51,44 @@ public final class TelegramMessageBuilder {
             car.getInventory()
         );
     }
+
+    public static String buildOverdueRentalMessage(Rental rental) {
+        Car car = rental.getCar();
+        User user = rental.getUser();
+
+        return """
+        Overdue rental
+
+        Rental:
+        * ID: %d
+        * Rental date: %s
+        * Return date: %s
+
+        Customer:
+        * ID: %d
+        * First name: %s
+        * Last name: %s
+        * Email: %s
+
+        Car:
+        * ID: %d
+        * Brand: %s
+        * Model: %s
+        * Type: %s
+        * Daily fee: $%s
+    """.formatted(
+            rental.getId(),
+            rental.getRentalDate(),
+            rental.getReturnDate(),
+            user.getId(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getEmail(),
+            car.getId(),
+            car.getBrand(),
+            car.getModel(),
+            car.getType(),
+            car.getDailyFee()
+        );
+    }
 }
