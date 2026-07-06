@@ -1,6 +1,6 @@
 package org.project.carsharingapp.util;
 
-import static org.project.carsharingapp.config.TestClockConfig.FIXED_NOW;
+import static org.project.carsharingapp.config.TestClockConfig.FIXED_DATE;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,6 +9,7 @@ import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
@@ -19,6 +20,7 @@ import org.project.carsharingapp.model.user.User;
 
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
+    public static final String ADD_RENTAL_SCRIPT_PATH = "classpath:database/add-rental-test-data.sql";
 
     public static final Long CAR_ID = 1L;
 
@@ -30,6 +32,8 @@ public class TestDataHelper {
     public static final String MANAGER_MAIL = "test.manager@mail.com";
 
     public static final LocalDate FIXED_RETURN_DATE = LocalDate.of(2026, 6, 10);
+
+    public static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
     public static User createTestCustomer() {
         return new User()
@@ -127,9 +131,13 @@ public class TestDataHelper {
     }
 
     public static Rental createRental() {
+        return createRental(1L);
+    }
+
+    public static Rental createRental(Long id) {
         return new Rental()
-            .setId(1L)
-            .setRentalDate(FIXED_NOW)
+            .setId(id)
+            .setRentalDate(FIXED_DATE)
             .setReturnDate(FIXED_RETURN_DATE)
             .setActualReturnDate(null)
             .setCar(createCar())
@@ -139,9 +147,32 @@ public class TestDataHelper {
     public static RentalResponseDto createRentalResponseDto() {
         CarResponseDto car = createCarResponseDtoWithId();
         return new RentalResponseDto(
-            1L, FIXED_NOW,
+            1L, FIXED_DATE,
             FIXED_RETURN_DATE,
             null, car, CUSTOMER_ID
+        );
+    }
+
+    public static RentalMessageDto createRentalMessageDto() {
+        return createRentalMessageDto(1L);
+    }
+
+    public static RentalMessageDto createRentalMessageDto(Long id) {
+        return new RentalMessageDto(
+            id,
+            FIXED_DATE,
+            FIXED_RETURN_DATE,
+            null,
+            CUSTOMER_ID,
+            CUSTOMER_MAIL,
+            "test",
+            "customer",
+            CAR_ID,
+            "BMW",
+            "X5",
+            CarType.SEDAN,
+            new BigDecimal("39.99"),
+            3
         );
     }
 

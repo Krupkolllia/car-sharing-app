@@ -29,14 +29,13 @@ import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.mapper.CarMapper;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.repository.CarRepository;
-import org.project.carsharingapp.service.impl.CarServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class CarServiceImplTest {
+public class CarServiceTest {
 
     @Mock
     private CarRepository carRepository;
@@ -45,7 +44,7 @@ public class CarServiceImplTest {
     private CarMapper carMapper;
 
     @InjectMocks
-    private CarServiceImpl carService;
+    private CarService carService;
 
     @Test
     @DisplayName("""

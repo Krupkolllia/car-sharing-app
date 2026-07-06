@@ -30,10 +30,9 @@ import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.UserRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.impl.UserServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplTest {
+public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -42,7 +41,7 @@ public class UserServiceImplTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserService userService;
 
     private MockedStatic<SecurityUtil> securityUtilMock;
 

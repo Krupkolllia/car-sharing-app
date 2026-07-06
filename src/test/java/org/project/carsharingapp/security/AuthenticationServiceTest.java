@@ -51,7 +51,7 @@ public class AuthenticationServiceTest {
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
-    private AuthenticationServiceImpl authenticationService;
+    private AuthenticationService authenticationService;
 
     @Test
     @DisplayName("""

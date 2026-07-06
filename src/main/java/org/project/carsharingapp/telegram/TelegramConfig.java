@@ -1,4 +1,4 @@
-package org.project.carsharingapp.config;
+package org.project.carsharingapp.telegram;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

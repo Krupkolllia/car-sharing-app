@@ -5,13 +5,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
+import static org.project.carsharingapp.util.TestDataHelper.NO_OVERDUE_RENTALS_MESSAGE;
 import static org.project.carsharingapp.util.TestDataHelper.createCar;
 import static org.project.carsharingapp.util.TestDataHelper.createRental;
+import static org.project.carsharingapp.util.TestDataHelper.createRentalMessageDto;
 import static org.project.carsharingapp.util.TestDataHelper.createRentalResponseDto;
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import static org.project.carsharingapp.util.TestDataHelper.createTestManager;
@@ -33,6 +36,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.carsharingapp.config.TestClockConfig;
 import org.project.carsharingapp.dto.car.CarResponseDto;
+import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
@@ -45,14 +49,14 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.impl.RentalServiceImpl;
+import org.project.carsharingapp.telegram.MessageBuilder;
 import org.project.carsharingapp.util.TestDataHelper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class RentalServiceImplTest {
+public class RentalServiceTest {
 
     @Mock
     private EntityManager entityManager;
@@ -69,7 +73,7 @@ public class RentalServiceImplTest {
     @Mock
     private NotificationService notificationService;
 
-    private RentalServiceImpl rentalService;
+    private RentalService rentalService;
 
     private MockedStatic<SecurityUtil> securityUtilMock;
 
@@ -77,7 +81,7 @@ public class RentalServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        rentalService = new RentalServiceImpl(
+        rentalService = new RentalService(
             entityManager,
             carRepository,
             rentalRepository,
@@ -126,6 +130,9 @@ public class RentalServiceImplTest {
 
         when(carRepository.decreaseInventory(car.getId())).thenReturn(1);
 
+        when(rentalMapper.toMessageDto(any(Rental.class)))
+            .thenReturn(createRentalMessageDto());
+
         when(rentalMapper.toDto(any(Rental.class))).thenReturn(expected);
     
         // When
@@ -155,6 +162,7 @@ public class RentalServiceImplTest {
         verify(notificationService).sendNotification(anyString());
 
         verify(rentalMapper).toDto(any(Rental.class));
+        verify(rentalMapper).toMessageDto(any(Rental.class));
 
         verifyNoMoreInteractions(carRepository, rentalMapper, entityManager, notificationService);
         securityUtilMock.verifyNoMoreInteractions();
@@ -465,7 +473,7 @@ public class RentalServiceImplTest {
             .usingRecursiveComparison()
             .isEqualTo(expected);
 
-        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_NOW);
+        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_DATE);
 
         verify(rentalRepository).findByIdWithCar(rental.getId());
 
@@ -516,7 +524,7 @@ public class RentalServiceImplTest {
         // Given
         Rental rental = createRental();
         RentalResponseDto expected = createRentalResponseDto()
-            .withActualReturnDate(TestClockConfig.FIXED_NOW);
+            .withActualReturnDate(TestClockConfig.FIXED_DATE);
 
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
@@ -535,7 +543,7 @@ public class RentalServiceImplTest {
             .usingRecursiveComparison()
             .isEqualTo(expected);
 
-        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_NOW);
+        assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_DATE);
 
         verify(rentalRepository).findByIdWithCar(rental.getId());
 
@@ -591,7 +599,7 @@ public class RentalServiceImplTest {
     void returnRental_WhenRentalIsAlreadyReturned_ShouldThrowRentalAlreadyReturnedException() {
         // Given
         Rental rental = createRental();
-        rental.setActualReturnDate(TestClockConfig.FIXED_NOW);
+        rental.setActualReturnDate(TestClockConfig.FIXED_DATE);
 
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
@@ -643,6 +651,73 @@ public class RentalServiceImplTest {
         securityUtilMock.verifyNoMoreInteractions();
 
         verifyNoInteractions(entityManager, rentalMapper);
+
+    }
+    
+    @Test
+    @DisplayName("""
+        sendOverdueRentalNotifications method when overdue
+        rentals exist should send message for each rental
+        """)
+    void sendOverdueRentalNotifications_WithOverdueRentals_ShouldSendMessageForEachRental() {
+        // Given
+        Rental firstRental = createRental(1L);
+        Rental secondRental = createRental(2L);
+        Rental thirdRental = createRental(3L);
+
+        RentalMessageDto firstMessage = createRentalMessageDto(1L);
+        RentalMessageDto secondMessage = createRentalMessageDto(2L);
+        RentalMessageDto thirdMessage = createRentalMessageDto(3L);
+
+        when(rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE))
+            .thenReturn(List.of(firstRental, secondRental, thirdRental));
+
+        when(rentalMapper.toMessageDto(firstRental)).thenReturn(firstMessage);
+        when(rentalMapper.toMessageDto(secondRental)).thenReturn(secondMessage);
+        when(rentalMapper.toMessageDto(thirdRental)).thenReturn(thirdMessage);
+
+        // When
+        rentalService.sendOverdueRentalNotifications();
+        
+        // Then
+        verify(rentalRepository).findAllOverdue(TestClockConfig.FIXED_DATE);
+
+        verify(rentalMapper).toMessageDto(firstRental);
+        verify(rentalMapper).toMessageDto(secondRental);
+        verify(rentalMapper).toMessageDto(thirdRental);
+
+        verify(notificationService)
+            .sendNotification(MessageBuilder.buildOverdueRentalMessage(firstMessage));
+        verify(notificationService)
+            .sendNotification(MessageBuilder.buildOverdueRentalMessage(secondMessage));
+        verify(notificationService)
+            .sendNotification(MessageBuilder.buildOverdueRentalMessage(thirdMessage));
+
+        verify(notificationService, never()).sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
+
+        verifyNoMoreInteractions(rentalRepository, rentalMapper, notificationService);
+    
+    }
+    
+    @Test
+    @DisplayName("""
+        sendOverdueRentalNotifications method when no overdue
+        rentals should send default notification
+        """)
+    void sendOverdueRentalNotifications_WithNoOverdueRentals_ShouldSendDefaultNotification() {
+        // Given
+        when(rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE))
+            .thenReturn(List.of());
+        
+        // When
+        rentalService.sendOverdueRentalNotifications();
+        
+        // Then
+        verify(rentalRepository).findAllOverdue(TestClockConfig.FIXED_DATE);
+        verify(notificationService).sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
+        
+        verifyNoMoreInteractions(rentalRepository, notificationService);
+        verifyNoInteractions(rentalMapper);
 
     }
 
