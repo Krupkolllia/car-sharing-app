@@ -9,10 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.project.carsharingapp.config.TestClockConfig;
 import org.project.carsharingapp.mapper.RentalMapper;
 import org.project.carsharingapp.repository.RentalRepository;
-import org.project.carsharingapp.service.impl.RentalSchedulerImpl;
 
 @ExtendWith(MockitoExtension.class)
-public class RentalSchedulerImplTest {
+public class RentalSchedulerTest {
 
     @Mock
     private RentalRepository rentalRepository;
@@ -23,11 +22,11 @@ public class RentalSchedulerImplTest {
     @Mock
     private NotificationService notificationService;
 
-    private RentalSchedulerImpl rentalScheduler;
+    private RentalScheduler rentalScheduler;
 
     @BeforeEach
     void setUp() {
-        rentalScheduler = new RentalSchedulerImpl(
+        rentalScheduler = new RentalScheduler(
             rentalRepository,
             rentalMapper,
             notificationService,

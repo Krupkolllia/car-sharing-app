@@ -46,14 +46,13 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.impl.RentalServiceImpl;
 import org.project.carsharingapp.util.TestDataHelper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class RentalServiceImplTest {
+public class RentalServiceTest {
 
     @Mock
     private EntityManager entityManager;
@@ -70,7 +69,7 @@ public class RentalServiceImplTest {
     @Mock
     private NotificationService notificationService;
 
-    private RentalServiceImpl rentalService;
+    private RentalService rentalService;
 
     private MockedStatic<SecurityUtil> securityUtilMock;
 
@@ -78,7 +77,7 @@ public class RentalServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        rentalService = new RentalServiceImpl(
+        rentalService = new RentalService(
             entityManager,
             carRepository,
             rentalRepository,
