@@ -91,7 +91,7 @@ public class RentalControllerTest extends AbstractControllerTest {
         assertThat(actual.id()).isNotNull();
 
         RentalResponseDto expected = new RentalResponseDto(
-            actual.id(), TestClockConfig.FIXED_NOW, TestDataHelper.FIXED_RETURN_DATE,
+            actual.id(), TestClockConfig.FIXED_DATE, TestDataHelper.FIXED_RETURN_DATE,
             null, expectedCarAfterRental, CUSTOMER_ID
         );
 
@@ -102,7 +102,7 @@ public class RentalControllerTest extends AbstractControllerTest {
         Rental actualRental = rentalRepository.findByIdWithCar(actual.id()).orElseThrow();
 
         assertThat(actualRental.getRentalDate())
-            .isEqualTo(TestClockConfig.FIXED_NOW);
+            .isEqualTo(TestClockConfig.FIXED_DATE);
 
         assertThat(actualRental.getReturnDate())
             .isEqualTo(TestDataHelper.FIXED_RETURN_DATE);
@@ -393,7 +393,7 @@ public class RentalControllerTest extends AbstractControllerTest {
     void returnRental_ForManagerValidCase_ShouldReturnUpdatedRentalAndStatusCode200() throws Exception {
         // Given
         RentalResponseDto expected = createRentalResponseDto()
-            .withActualReturnDate(TestClockConfig.FIXED_NOW);
+            .withActualReturnDate(TestClockConfig.FIXED_DATE);
 
         CarResponseDto expectedCar = expected.car();
 
@@ -447,7 +447,7 @@ public class RentalControllerTest extends AbstractControllerTest {
     void returnRental_ForCustomerValidCase_ShouldReturnUpdatedRentalAndStatusCode200() throws Exception {
         // Given
         RentalResponseDto expected = createRentalResponseDto()
-            .withActualReturnDate(TestClockConfig.FIXED_NOW);
+            .withActualReturnDate(TestClockConfig.FIXED_DATE);
 
         CarResponseDto expectedCar = expected.car();
 
