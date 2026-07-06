@@ -8,6 +8,7 @@ public record RentalMessageDto(
         Long rentalId,
         LocalDate rentalDate,
         LocalDate returnDate,
+        LocalDate actualReturnDate,
 
         Long customerId,
         String customerEmail,

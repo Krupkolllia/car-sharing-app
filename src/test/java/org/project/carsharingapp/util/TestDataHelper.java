@@ -162,6 +162,7 @@ public class TestDataHelper {
             id,
             FIXED_DATE,
             FIXED_RETURN_DATE,
+            null,
             CUSTOMER_ID,
             CUSTOMER_MAIL,
             "test",
