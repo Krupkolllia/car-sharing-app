@@ -3,6 +3,7 @@ package org.project.carsharingapp.service;
 import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class RentalService {
+
+    private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
     private final EntityManager entityManager;
 
@@ -126,5 +129,23 @@ public class RentalService {
         entityManager.refresh(rental.getCar());
 
         return rentalMapper.toDto(rental);
+    }
+
+    @Transactional(readOnly = true)
+    public void sendOverdueRentalNotifications() {
+        List<Rental> overdueRentals =
+                rentalRepository.findAllOverdue(LocalDate.now(clock));
+
+        if (overdueRentals.isEmpty()) {
+            notificationService.sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
+            return;
+        }
+
+        overdueRentals.forEach(rental ->
+                notificationService.sendNotification(
+                    MessageBuilder.buildOverdueRentalMessage(
+                        rentalMapper.toMessageDto(rental))
+            )
+        );
     }
 }
