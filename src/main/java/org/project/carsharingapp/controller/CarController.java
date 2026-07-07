@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.security.annotation.ManagerOnly;
 import org.project.carsharingapp.service.CarService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,7 +34,7 @@ public class CarController {
 
     @Operation(summary = "Add a new car to the catalog")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize(ROLE_MANAGER)
+    @ManagerOnly
     @PostMapping
     public CarResponseDto createCar(@Valid @RequestBody CarRequestDto requestDto) {
         return carService.create(requestDto);
@@ -53,7 +53,7 @@ public class CarController {
     }
 
     @Operation(summary = "Update (PATCH) a car by id")
-    @PreAuthorize(ROLE_MANAGER)
+    @ManagerOnly
     @PatchMapping("/{id}")
     public CarResponseDto updateCarById(@PathVariable Long id,
                                         @Valid @RequestBody CarUpdateRequestDto requestDto) {
@@ -62,7 +62,7 @@ public class CarController {
 
     @Operation(summary = "Delete a car by id")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize(ROLE_MANAGER)
+    @ManagerOnly
     @DeleteMapping("/{id}")
     public void deleteCarById(@PathVariable Long id) {
         carService.deleteById(id);

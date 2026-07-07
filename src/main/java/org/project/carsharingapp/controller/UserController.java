@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.user.UpdateUserProfileRequestDto;
 import org.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
+import org.project.carsharingapp.security.annotation.CustomerOnly;
+import org.project.carsharingapp.security.annotation.ManagerOnly;
 import org.project.carsharingapp.service.UserService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,14 +29,14 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Get my profile info")
-    @PreAuthorize(ROLE_CUSTOMER)
+    @CustomerOnly
     @GetMapping("/me")
     public UserProfileResponseDto getUserProfile() {
         return userService.getProfile();
     }
 
     @Operation(summary = "Update profile info")
-    @PreAuthorize(ROLE_CUSTOMER)
+    @CustomerOnly
     @PatchMapping("/me")
     public UserProfileResponseDto updateProfile(
             @Valid @RequestBody UpdateUserProfileRequestDto updateDto) {
@@ -43,7 +44,7 @@ public class UserController {
     }
 
     @Operation(summary = "Update user's role")
-    @PreAuthorize(ROLE_MANAGER)
+    @ManagerOnly
     @PutMapping("/{id}/role")
     public UserProfileResponseDto updateUserRole(@PathVariable Long id,
             @Valid @RequestBody UpdateUserRoleRequestDto updateDto) {
