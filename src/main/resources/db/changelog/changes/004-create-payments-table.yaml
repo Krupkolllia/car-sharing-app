@@ -32,7 +32,7 @@ databaseChangeLog:
                     references: rentals(id)
               - column:
                   name: session_url
-                  type: VARCHAR(500)
+                  type: VARCHAR(2048)
                   constraints:
                     nullable: false
               - column:
@@ -40,6 +40,7 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: total
                   type: DECIMAL(10, 2)
