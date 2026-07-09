@@ -1,6 +1,7 @@
-package org.project.carsharingapp.service;
+package org.project.carsharingapp.service.payment;
 
 import lombok.RequiredArgsConstructor;
+import org.project.carsharingapp.dto.payment.PaymentRequestDto;
 import org.project.carsharingapp.dto.payment.PaymentResponseDto;
 import org.project.carsharingapp.mapper.PaymentMapper;
 import org.project.carsharingapp.model.user.Role;
@@ -32,5 +33,11 @@ public class StripePaymentService implements PaymentService {
 
         return paymentRepository.findAllFilteredByUserId(userId, pageable)
             .map(paymentMapper::toDto);
+    }
+
+    @Override
+    public PaymentResponseDto create(PaymentRequestDto requestDto) {
+
+        return null;
     }
 }

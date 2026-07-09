@@ -49,7 +49,7 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.telegram.MessageBuilder;
+import org.project.carsharingapp.util.MessageBuilder;
 import org.project.carsharingapp.util.TestDataHelper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;

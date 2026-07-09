@@ -1,5 +1,6 @@
-package org.project.carsharingapp.service;
+package org.project.carsharingapp.service.payment;
 
+import org.project.carsharingapp.dto.payment.PaymentRequestDto;
 import org.project.carsharingapp.dto.payment.PaymentResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,5 +8,7 @@ import org.springframework.data.domain.Pageable;
 public interface PaymentService {
 
     Page<PaymentResponseDto> findAll(Long userId, Pageable pageable);
+
+    PaymentResponseDto create(PaymentRequestDto requestDto);
 
 }

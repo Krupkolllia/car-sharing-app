@@ -1,4 +1,4 @@
-package org.project.carsharingapp.telegram;
+package org.project.carsharingapp.util;
 
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 

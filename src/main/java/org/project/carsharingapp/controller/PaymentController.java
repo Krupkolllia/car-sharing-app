@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.payment.PaymentResponseDto;
 import org.project.carsharingapp.security.annotation.ManagerOrCustomer;
-import org.project.carsharingapp.service.PaymentService;
+import org.project.carsharingapp.service.payment.PaymentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
