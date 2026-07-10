@@ -1,7 +1,7 @@
 package org.project.carsharingapp.service.payment.calculator;
 
 import java.util.List;
-import org.project.carsharingapp.dto.payment.RentalPaymentCalculationSource;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
 import org.springframework.stereotype.Component;
 
 @Component

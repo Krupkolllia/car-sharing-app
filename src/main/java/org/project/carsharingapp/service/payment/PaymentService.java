@@ -5,10 +5,10 @@ import org.project.carsharingapp.dto.payment.PaymentResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface PaymentService {
+public interface PaymentService<S extends PaymentRequestDto, R extends PaymentResponseDto> {
 
-    Page<PaymentResponseDto> findAll(Long userId, Pageable pageable);
+    Page<R> findAll(Long userId, Pageable pageable);
 
-    PaymentResponseDto create(PaymentRequestDto requestDto);
+    R createPaymentSession(S requestDto);
 
 }
