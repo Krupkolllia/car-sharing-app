@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private static final String ROLE_CUSTOMER = "hasRole('CUSTOMER')";
-    private static final String ROLE_MANAGER = "hasRole('MANAGER')";
 
     private final UserService userService;
 

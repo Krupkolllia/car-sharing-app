@@ -8,6 +8,7 @@ import org.project.carsharingapp.dto.payment.rental.RentalPaymentRequestDto;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
 import org.project.carsharingapp.security.annotation.ManagerOrCustomer;
 import org.project.carsharingapp.service.payment.RentalPaymentService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class RentalPaymentController {
     @GetMapping
     public Page<RentalPaymentResponseDto> getAll(
             @RequestParam(name = "user_id", required = false) Long userId,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return paymentService.findAll(userId, pageable);
     }

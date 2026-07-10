@@ -9,6 +9,7 @@ import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.security.annotation.CustomerOnly;
 import org.project.carsharingapp.security.annotation.ManagerOrCustomer;
 import org.project.carsharingapp.service.RentalService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class RentalController {
     public Page<RentalResponseDto> getAll(
             @RequestParam(value = "user_id", required = false) Long userId,
             @RequestParam(value = "is_active", required = false) Boolean isActive,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return rentalService.findAll(userId, isActive, pageable);
     }

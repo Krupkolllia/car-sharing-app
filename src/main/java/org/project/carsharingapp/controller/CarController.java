@@ -9,6 +9,7 @@ import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
 import org.project.carsharingapp.security.annotation.ManagerOnly;
 import org.project.carsharingapp.service.CarService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,8 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/cars")
 public class CarController {
 
-    private static final String ROLE_MANAGER = "hasRole('MANAGER')";
-
     private final CarService carService;
 
     @Operation(summary = "Add a new car to the catalog")
@@ -42,7 +41,7 @@ public class CarController {
 
     @Operation(summary = "Get a page of cars")
     @GetMapping
-    public Page<CarResponseDto> getAll(Pageable pageable) {
+    public Page<CarResponseDto> getAll(@ParameterObject Pageable pageable) {
         return carService.findAll(pageable);
     }
 
