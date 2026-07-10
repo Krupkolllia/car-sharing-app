@@ -7,7 +7,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
-public class StripePaymentUriBuilder {
+public class StripePaymentUrlBuilder {
 
     private static final String SUCCESS_PATH = "/payments/success";
     private static final String CANCEL_PATH = "/payments/cancel";
