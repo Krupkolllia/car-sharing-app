@@ -1,5 +1,6 @@
 package org.project.carsharingapp.util;
 
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentMessageDto;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 
 public final class MessageBuilder {
@@ -79,5 +80,27 @@ public final class MessageBuilder {
             rental.carModel(),
             rental.carType(),
             rental.dailyFee());
+    }
+
+    public static String buildRentalPaymentCompletedMessage(RentalPaymentMessageDto payment) {
+        return """
+            ✅ Payment completed
+    
+            Payment ID: %d
+            Type: %s
+            Amount: $%s
+            User: %s
+            User ID: %d
+            Rental ID: %d
+            Status: %s
+            """.formatted(
+                payment.paymentId(),
+                payment.paymentType(),
+                payment.total(),
+                payment.userEmail(),
+                payment.userId(),
+                payment.rentalId(),
+                payment.paymentStatus()
+            );
     }
 }
