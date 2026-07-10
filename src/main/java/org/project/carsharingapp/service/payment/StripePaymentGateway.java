@@ -17,7 +17,6 @@ import org.project.carsharingapp.exception.StripeSessionRetrievingException;
 import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StripePaymentGateway implements PaymentGateway {
@@ -66,23 +65,6 @@ public class StripePaymentGateway implements PaymentGateway {
                 session.getUrl()
             );
         } catch (StripeException e) {
-            log.error(
-                    """
-                    Stripe session creation failed:
-                    type={}
-                    status={}
-                    code={}
-                    requestId={}
-                    message={}
-                    """,
-                    e.getClass().getSimpleName(),
-                    e.getStatusCode(),
-                    e.getCode(),
-                    e.getRequestId(),
-                    e.getMessage(),
-                    e
-            );
-
             throw new StripeSessionCreationException("Cannot create Stripe session", e);
         }
     }

@@ -99,7 +99,7 @@ public class UserServiceTest {
 
         UserProfileResponseDto expected = new UserProfileResponseDto(
             "authenticated.user@mail.com", "updated first name",
-            "updated last name", Role.CUSTOMER.name()
+            "updated last name", Role.CUSTOMER
         );
 
         when(userRepository.save(authenticatedUser)).thenReturn(authenticatedUser);
@@ -131,7 +131,7 @@ public class UserServiceTest {
         User user = createTestCustomer();
         Long id = user.getId();
 
-        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.MANAGER.name());
+        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.MANAGER);
 
         UserProfileResponseDto expected = new UserProfileResponseDto(
             user.getEmail(), user.getFirstName(), user.getLastName(), requestDto.role()
@@ -164,7 +164,7 @@ public class UserServiceTest {
     void updateUserRole_WithInvalidId_ShouldThrowEntityNotFoundException() {
         // Given
         Long invalidId = 404L;
-        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.CUSTOMER.name());
+        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.CUSTOMER);
 
         when(userRepository.findById(invalidId)).thenReturn(Optional.empty());
 
