@@ -1,5 +1,6 @@
 package org.project.carsharingapp.service.payment;
 
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -7,13 +8,16 @@ import com.stripe.param.checkout.SessionCreateParams.Mode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
 import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
+import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StripePaymentGateway implements PaymentGateway {
@@ -22,8 +26,12 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private final StripePaymentUrlBuilder urlBuilder;
 
+    private final PaymentProperties paymentProperties;
+
     @Override
     public PaymentSession createSession(PaymentSessionRequest request) {
+        Stripe.apiKey = paymentProperties.stripe().secretKey();
+
         long unitAmount = request.amount()
                 .multiply(CENTS_IN_DOLLAR)
                 .setScale(0, RoundingMode.HALF_UP)
@@ -58,6 +66,23 @@ public class StripePaymentGateway implements PaymentGateway {
                 session.getUrl()
             );
         } catch (StripeException e) {
+            log.error(
+                    """
+                    Stripe session creation failed:
+                    type={}
+                    status={}
+                    code={}
+                    requestId={}
+                    message={}
+                    """,
+                    e.getClass().getSimpleName(),
+                    e.getStatusCode(),
+                    e.getCode(),
+                    e.getRequestId(),
+                    e.getMessage(),
+                    e
+            );
+
             throw new StripeSessionCreationException("Cannot create Stripe session", e);
         }
     }
