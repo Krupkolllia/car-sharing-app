@@ -8,7 +8,6 @@ import com.stripe.param.checkout.SessionCreateParams.Mode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
 import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
@@ -20,6 +19,10 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class StripePaymentGateway implements PaymentGateway {
+
+    private static final String STRIPE_PAID_STATUS = "paid";
+
+    private static final String STRIPE_EXPIRED_STATUS = "expired";
 
     private static final BigDecimal CENTS_IN_DOLLAR = BigDecimal.valueOf(100);
 
@@ -74,11 +77,11 @@ public class StripePaymentGateway implements PaymentGateway {
         try {
             Session session = Session.retrieve(sessionId);
 
-            if (session.getPaymentStatus().equals("paid")) {
+            if (STRIPE_PAID_STATUS.equals(session.getPaymentStatus())) {
                 return PaymentSessionStatus.PAID;
             }
 
-            if (session.getStatus().equals("expired")) {
+            if (STRIPE_EXPIRED_STATUS.equals(session.getStatus())) {
                 return PaymentSessionStatus.EXPIRED;
             }
 

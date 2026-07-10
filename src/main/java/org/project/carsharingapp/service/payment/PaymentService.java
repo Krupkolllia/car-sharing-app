@@ -11,4 +11,6 @@ public interface PaymentService<S extends PaymentRequestDto, R extends PaymentRe
 
     R createPaymentSession(S requestDto);
 
+    R handleSuccessPayment(String sessionId);
+
 }

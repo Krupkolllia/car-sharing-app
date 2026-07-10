@@ -1,5 +1,6 @@
 package org.project.carsharingapp.repository;
 
+import java.util.Optional;
 import org.project.carsharingapp.model.payment.Payment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,5 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             WHERE (:userId IS NULL OR p.rental.user.id = :userId)
             """)
     Page<Payment> findAllFilteredByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    Optional<Payment> findBySessionId(String sessionId);
 
 }

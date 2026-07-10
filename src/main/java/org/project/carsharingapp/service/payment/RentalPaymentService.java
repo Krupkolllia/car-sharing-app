@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
+import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentRequestDto;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
+import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.mapper.RentalPaymentMapper;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.payment.Payment;
@@ -105,6 +107,29 @@ public class RentalPaymentService
                 .setSessionUrl(paymentSession.url());
 
         return paymentMapper.toDto(paymentRepository.save(payment));
+    }
+
+    @Override
+    @Transactional
+    public RentalPaymentResponseDto handleSuccessPayment(String sessionId) {
+        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
+                () -> new EntityNotFoundException(
+                    "Cannot find payment for Stripe session: " + sessionId)
+        );
+
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            return paymentMapper.toDto(payment);
+        }
+
+        PaymentSessionStatus sessionStatus = paymentGateway.getStatus(sessionId);
+        if (paymentGateway.getStatus(sessionId) != PaymentSessionStatus.PAID) {
+            throw new PaymentProcessingException(
+                "Payment was not paid. Session status: " + sessionStatus);
+        }
+
+        payment.setStatus(PaymentStatus.PAID);
+
+        return paymentMapper.toDto(payment);
     }
 
     private String buildProductName(Rental rental, PaymentType paymentType) {

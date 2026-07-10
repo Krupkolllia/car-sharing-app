@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/payments")
 public class RentalPaymentController {
 
-    private final RentalPaymentService paymentService;
+    private final RentalPaymentService rentalPaymentService;
 
     @Operation(summary = "Get payments by user id")
     @ManagerOrCustomer
@@ -35,7 +35,7 @@ public class RentalPaymentController {
             @RequestParam(name = "user_id", required = false) Long userId,
             @ParameterObject Pageable pageable
     ) {
-        return paymentService.findAll(userId, pageable);
+        return rentalPaymentService.findAll(userId, pageable);
     }
 
     @Operation(summary = "Create payment session")
@@ -44,17 +44,13 @@ public class RentalPaymentController {
     @PostMapping
     public RentalPaymentResponseDto createPaymentSession(
             @RequestBody @Valid RentalPaymentRequestDto requestDto) {
-        return paymentService.createPaymentSession(requestDto);
+        return rentalPaymentService.createPaymentSession(requestDto);
     }
 
+    @Operation(summary = "Redirect after successful payment")
     @GetMapping("/success")
-    public String handleSuccess(@RequestParam("session_id") String sessionId) {
-        return "Payment was successfully completed";
-    }
-
-    @GetMapping("/cancel")
-    public String handleCancel() {
-        return "Payment can be made later. The payment session is available for 24 hours.";
+    public RentalPaymentResponseDto handleSuccess(@RequestParam("session_id") String sessionId) {
+        return rentalPaymentService.handleSuccessPayment(sessionId);
     }
 
 }
