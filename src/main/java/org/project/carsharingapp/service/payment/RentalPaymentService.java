@@ -1,6 +1,8 @@
 package org.project.carsharingapp.service.payment;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.project.carsharingapp.dto.payment.PaymentSession;
@@ -35,6 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RentalPaymentService
         implements PaymentService<RentalPaymentRequestDto, RentalPaymentResponseDto> {
+
+    private static final Set<PaymentStatus> BLOCKING_STATUSES =
+            EnumSet.of(
+                PaymentStatus.PENDING
+            );
 
     private static final String CURRENCY = "usd";
 
@@ -134,11 +141,17 @@ public class RentalPaymentService
         payment.setStatus(PaymentStatus.PAID);
 
         notificationService.sendNotification(
-            MessageBuilder.buildRentalPaymentCompletedMessage(
-                paymentMapper.toMessageDto(payment))
+                MessageBuilder.buildRentalPaymentCompletedMessage(
+                    paymentMapper.toMessageDto(payment))
         );
 
         return paymentMapper.toDto(payment);
+    }
+
+    @Transactional
+    public boolean hasUnpaidPayment(Long userId) {
+        return paymentRepository
+            .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
     }
 
     private String buildProductName(Rental rental, PaymentType paymentType) {

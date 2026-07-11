@@ -1,7 +1,10 @@
 package org.project.carsharingapp.repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.project.carsharingapp.model.payment.Payment;
+import org.project.carsharingapp.model.payment.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -19,5 +22,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findAllFilteredByUserId(@Param("userId") Long userId, Pageable pageable);
 
     Optional<Payment> findBySessionId(String sessionId);
+
+    List<Payment> findAllByStatus(PaymentStatus status);
+
+    boolean existsByRentalUserIdAndStatusNotIn(
+            Long userId, Collection<PaymentStatus> statuses);
 
 }
