@@ -57,16 +57,16 @@ public class RentalService {
 
         Long carId = requestDto.carId();
 
-        Car car = carRepository.findById(carId).orElseThrow(
-                () -> new EntityNotFoundException("Cannot find a car with id " + carId)
-        );
-
         if (carRepository.decreaseInventory(carId) == 0) {
-            throw new NoAvailableCarsException(car.getBrand() + " " + car.getModel()
-                + " is not in stock right now. Car id: " + carId);
+            if (carRepository.findById(carId).isEmpty()) {
+                throw new EntityNotFoundException("Cannot find a car with id " + carId);
+            }
+
+            throw new NoAvailableCarsException(
+                "This car is not in stock right now. Car id: " + carId);
         }
 
-        entityManager.refresh(car);
+        Car car = carRepository.findById(carId).get();
 
         Rental rental = new Rental()
                 .setUser(authenticatedUser)
