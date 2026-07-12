@@ -8,6 +8,7 @@ import com.stripe.param.checkout.SessionCreateParams.Mode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
 import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
@@ -17,6 +18,7 @@ import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class StripePaymentGateway implements PaymentGateway {
 
@@ -68,6 +70,7 @@ public class StripePaymentGateway implements PaymentGateway {
                 session.getUrl()
             );
         } catch (StripeException e) {
+            log.error("Failed to create Stripe session", e);
             throw new StripeSessionCreationException("Cannot create Stripe session", e);
         }
     }
@@ -87,6 +90,7 @@ public class StripePaymentGateway implements PaymentGateway {
 
             return PaymentSessionStatus.UNPAID;
         } catch (StripeException e) {
+            log.error("Failed to retrieve Stripe session", e);
             throw new StripeSessionRetrievingException("Cannot retrieve Stripe session", e);
         }
     }

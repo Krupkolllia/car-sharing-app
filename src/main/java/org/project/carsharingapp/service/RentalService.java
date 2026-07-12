@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalRequestDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class RentalService {
@@ -81,6 +83,14 @@ public class RentalService {
                 MessageBuilder.buildRentalCreatedMessage(rentalMessageDto)
         );
 
+        log.info(
+                "Rental created: rentalId={}, userId={}, carId={}, returnDate={}",
+                rental.getId(),
+                authenticatedUser.getId(),
+                car.getId(),
+                rental.getReturnDate()
+        );
+
         return rentalMapper.toDto(rental);
     }
 
@@ -130,11 +140,27 @@ public class RentalService {
 
         rental.setActualReturnDate(LocalDate.now(clock));
 
-        if (carRepository.increaseInventory(rental.getCar().getId()) == 0) {
+        Car car = rental.getCar();
+        if (carRepository.increaseInventory(car.getId()) == 0) {
+            log.error("Increasing car inventory by 1 had no effect."
+                    + "Car id={}, rentalId={}, userId={}, car inventory={}",
+                    car.getId(),
+                    rental.getId(),
+                    currentUser.getId(),
+                    car.getInventory()
+            );
+
             throw new IllegalStateException(
-                "Failed to increase inventory for car with id " + rental.getCar().getId()
+                "Failed to increase inventory for car with id: " + car.getId()
             );
         }
+
+        log.info(
+                "Car returned: rentalId={}, returnDate={}, actualReturnDate={}",
+                rental.getId(),
+                rental.getReturnDate(),
+                rental.getActualReturnDate()
+        );
 
         return rentalMapper.toDto(rental);
     }

@@ -634,7 +634,7 @@ public class RentalServiceTest {
         // When & Then
         assertThatThrownBy(() -> rentalService.returnRental(rental.getId()))
             .isExactlyInstanceOf(IllegalStateException.class)
-            .hasMessage("Failed to increase inventory for car with id " + rental.getCar().getId());
+            .hasMessage("Failed to increase inventory for car with id: " + rental.getCar().getId());
 
         verify(rentalRepository).findById(rental.getId());
 
