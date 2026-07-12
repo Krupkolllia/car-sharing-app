@@ -24,7 +24,7 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.PaymentRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.NotificationService;
+import org.project.carsharingapp.service.notifications.NotificationService;
 import org.project.carsharingapp.service.payment.calculator.RentalPaymentCalculatorResolver;
 import org.project.carsharingapp.util.MessageBuilder;
 import org.springframework.data.domain.Page;
