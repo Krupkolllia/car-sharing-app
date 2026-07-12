@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RentalPaymentService
         implements PaymentService<RentalPaymentRequestDto, RentalPaymentResponseDto> {
@@ -118,6 +120,15 @@ public class RentalPaymentService
                 .setSessionId(paymentSession.id())
                 .setSessionUrl(paymentSession.url());
 
+        log.info(
+                "Payment created: paymentId={}, userId={}, rentalId={}, type={}, total={}",
+                payment.getId(),
+                currentUser.getId(),
+                rental.getId(),
+                payment.getType(),
+                payment.getTotal()
+        );
+
         return paymentMapper.toDto(paymentRepository.save(payment));
     }
 
@@ -146,6 +157,12 @@ public class RentalPaymentService
                     paymentMapper.toMessageDto(payment)
                 )
         ));
+
+        log.info(
+                "Payment completed: paymentId={}, sessionId={}",
+                payment.getId(),
+                sessionId
+        );
 
         return paymentMapper.toDto(payment);
     }

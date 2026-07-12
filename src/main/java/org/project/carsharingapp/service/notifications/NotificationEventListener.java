@@ -1,12 +1,14 @@
 package org.project.carsharingapp.service.notifications;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class NotificationEventListener {
 
@@ -18,8 +20,7 @@ public class NotificationEventListener {
         try {
             notificationService.sendNotification(event.message());
         } catch (Exception e) {
-            System.err.println("Failed to send notification: \n" + event.message()
-                    + "\n" + e.getMessage());
+            log.warn("Failed to send notification", e);
         }
     }
 
