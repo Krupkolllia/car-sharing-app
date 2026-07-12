@@ -1,4 +1,4 @@
-package org.project.carsharingapp.telegram;
+package org.project.carsharingapp.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

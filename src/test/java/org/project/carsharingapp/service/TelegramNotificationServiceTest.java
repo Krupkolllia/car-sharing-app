@@ -13,8 +13,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.project.carsharingapp.telegram.TelegramProperties;
-import org.project.carsharingapp.telegram.TelegramNotificationService;
+import org.project.carsharingapp.properties.TelegramProperties;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;

@@ -64,7 +64,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
         UserProfileResponseDto expected = new UserProfileResponseDto(
             CUSTOMER_MAIL, "updated first name",
-            "updated last name", Role.CUSTOMER.name()
+            "updated last name", Role.CUSTOMER
         );
 
         String jsonRequest = jsonMapper.writeValueAsString(requestDto);
@@ -95,9 +95,7 @@ public class UserControllerTest extends AbstractControllerTest {
         """)
     void updateUserRole_WithValidId_ShouldReturnUpdatedUserAndStatusCode200() throws Exception {
         // Given
-        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(
-            Role.MANAGER.name()
-        );
+        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.MANAGER);
 
         UserProfileResponseDto expected = new UserProfileResponseDto(
             CUSTOMER_MAIL, "test", "user", requestDto.role()
@@ -133,9 +131,7 @@ public class UserControllerTest extends AbstractControllerTest {
         // Given
         Long invalidId = 404L;
 
-        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(
-            Role.MANAGER.name()
-        );
+        UpdateUserRoleRequestDto requestDto = new UpdateUserRoleRequestDto(Role.MANAGER);
 
         String jsonRequest = jsonMapper.writeValueAsString(requestDto);
 

@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
-import org.project.carsharingapp.exception.validation.ValidEnum;
 import org.project.carsharingapp.model.car.CarType;
 
 public record CarRequestDto(
@@ -17,8 +16,7 @@ public record CarRequestDto(
         String brand,
 
         @NotNull
-        @ValidEnum(enumClass = CarType.class)
-        String type,
+        CarType type,
 
         @PositiveOrZero
         Integer inventory,

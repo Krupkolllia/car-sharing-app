@@ -1,7 +1,7 @@
-package org.project.carsharingapp.telegram;
+package org.project.carsharingapp.service;
 
 import lombok.RequiredArgsConstructor;
-import org.project.carsharingapp.service.NotificationService;
+import org.project.carsharingapp.properties.TelegramProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;

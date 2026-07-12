@@ -41,7 +41,7 @@ public class Car {
     @Column(nullable = false)
     private Integer inventory;
 
-    @Column(name = "daily_fee", nullable = false)
+    @Column(name = "daily_fee", nullable = false, precision = 10, scale = 2)
     private BigDecimal dailyFee;
 
     @Column(name = "is_deleted", nullable = false)

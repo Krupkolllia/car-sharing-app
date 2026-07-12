@@ -1,6 +1,7 @@
-package org.project.carsharingapp.telegram;
+package org.project.carsharingapp.config;
 
 import lombok.RequiredArgsConstructor;
+import org.project.carsharingapp.properties.TelegramProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;

@@ -11,6 +11,7 @@ import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
+import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
 import org.project.carsharingapp.mapper.RentalMapper;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.rental.Rental;
@@ -19,7 +20,8 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.telegram.MessageBuilder;
+import org.project.carsharingapp.service.payment.RentalPaymentService;
+import org.project.carsharingapp.util.MessageBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,8 @@ public class RentalService {
 
     private final EntityManager entityManager;
 
+    private final RentalPaymentService paymentService;
+
     private final CarRepository carRepository;
 
     private final RentalRepository rentalRepository;
@@ -45,6 +49,12 @@ public class RentalService {
     private final Clock clock;
 
     public RentalResponseDto createRental(RentalRequestDto requestDto) {
+        User authenticatedUser = SecurityUtil.getAuthenticatedUser();
+
+        if (paymentService.hasUnpaidPayment(authenticatedUser.getId())) {
+            throw new UnpaidPaymentExistsException("User has an unpaid payment");
+        }
+
         Long carId = requestDto.carId();
 
         Car car = carRepository.findById(carId).orElseThrow(
@@ -59,7 +69,7 @@ public class RentalService {
         entityManager.refresh(car);
 
         Rental rental = new Rental()
-                .setUser(SecurityUtil.getAuthenticatedUser())
+                .setUser(authenticatedUser)
                 .setRentalDate(LocalDate.now(clock))
                 .setReturnDate(requestDto.returnDate())
                 .setCar(car);

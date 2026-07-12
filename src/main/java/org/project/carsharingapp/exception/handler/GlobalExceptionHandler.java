@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
     ) {
         return buildResponse(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "An unexpected error occurred",
+            e.getMessage(),
             request.getRequestURI()
         );
     }

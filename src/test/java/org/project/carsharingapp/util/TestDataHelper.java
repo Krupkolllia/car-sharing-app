@@ -68,13 +68,13 @@ public class TestDataHelper {
 
     public static UserProfileResponseDto createTestCustomerProfileResponseDto() {
         return new UserProfileResponseDto(
-            CUSTOMER_MAIL, "test", "user", Role.CUSTOMER.name()
+            CUSTOMER_MAIL, "test", "user", Role.CUSTOMER
         );
     }
 
     public static CarRequestDto createCarRequestDto() {
         return new CarRequestDto(
-            "M5", "BMW", CarType.SEDAN.name(), 1, new BigDecimal("39.99")
+            "M5", "BMW", CarType.SEDAN, 1, new BigDecimal("39.99")
         );
     }
 
@@ -86,7 +86,7 @@ public class TestDataHelper {
 
     public static CarResponseDto createUpdatedCarResponseDto() {
         return new CarResponseDto(
-            1L, "M5", "BMW", CarType.SEDAN.name(),
+            1L, "M5", "BMW", CarType.SEDAN,
             7, new BigDecimal("39.99")
         );
     }
@@ -104,13 +104,13 @@ public class TestDataHelper {
 
     public static CarResponseDto createCarResponseDto() {
         return new CarResponseDto(
-            null, "M5", "BMW", CarType.SEDAN.name(), 1, new BigDecimal("39.99")
+            null, "M5", "BMW", CarType.SEDAN, 1, new BigDecimal("39.99")
         );
     }
 
     public static CarResponseDto createCarResponseDtoWithId() {
         return new CarResponseDto(
-            1L, "M5", "BMW", CarType.SEDAN.name(), 1, new BigDecimal("39.99")
+            1L, "M5", "BMW", CarType.SEDAN, 1, new BigDecimal("39.99")
         );
     }
 
@@ -118,13 +118,13 @@ public class TestDataHelper {
         List<CarResponseDto> responseDtoList = new ArrayList<>();
 
         responseDtoList.add(new CarResponseDto(
-            1L, "M5", "BMW", CarType.SEDAN.name(), 1, new BigDecimal("39.99")
+            1L, "M5", "BMW", CarType.SEDAN, 1, new BigDecimal("39.99")
         ));
         responseDtoList.add(new CarResponseDto(
-            2L, "RX", "Lexus", CarType.SUV.name(), 3, new BigDecimal("49.99")
+            2L, "RX", "Lexus", CarType.SUV, 3, new BigDecimal("49.99")
         ));
         responseDtoList.add(new CarResponseDto(
-            3L, "Civic", "Honda", CarType.HATCHBACK.name(), 5, new BigDecimal("29.99")
+            3L, "Civic", "Honda", CarType.HATCHBACK, 5, new BigDecimal("29.99")
         ));
 
         return responseDtoList;

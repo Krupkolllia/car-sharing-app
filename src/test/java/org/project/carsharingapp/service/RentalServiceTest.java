@@ -49,7 +49,8 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.telegram.MessageBuilder;
+import org.project.carsharingapp.service.payment.RentalPaymentService;
+import org.project.carsharingapp.util.MessageBuilder;
 import org.project.carsharingapp.util.TestDataHelper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -60,6 +61,9 @@ public class RentalServiceTest {
 
     @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private RentalPaymentService paymentService;
 
     @Mock
     private CarRepository carRepository;
@@ -83,6 +87,7 @@ public class RentalServiceTest {
     void setUp() {
         rentalService = new RentalService(
             entityManager,
+            paymentService,
             carRepository,
             rentalRepository,
             rentalMapper,
@@ -193,8 +198,6 @@ public class RentalServiceTest {
         verifyNoMoreInteractions(carRepository);
 
         verifyNoInteractions(rentalMapper, entityManager, notificationService);
-        securityUtilMock.verifyNoInteractions();
-        
     }
 
     @Test
@@ -225,8 +228,6 @@ public class RentalServiceTest {
         verifyNoMoreInteractions(carRepository);
 
         verifyNoInteractions(rentalMapper, entityManager, notificationService);
-        securityUtilMock.verifyNoInteractions();
-
     }
 
     @ParameterizedTest
