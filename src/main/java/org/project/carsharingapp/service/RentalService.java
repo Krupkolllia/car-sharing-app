@@ -1,6 +1,5 @@
 package org.project.carsharingapp.service;
 
-import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -34,8 +33,6 @@ public class RentalService {
 
     private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
-    private final EntityManager entityManager;
-
     private final RentalPaymentService paymentService;
 
     private final CarRepository carRepository;
@@ -57,16 +54,16 @@ public class RentalService {
 
         Long carId = requestDto.carId();
 
-        Car car = carRepository.findById(carId).orElseThrow(
-                () -> new EntityNotFoundException("Cannot find a car with id " + carId)
-        );
-
         if (carRepository.decreaseInventory(carId) == 0) {
-            throw new NoAvailableCarsException(car.getBrand() + " " + car.getModel()
-                + " is not in stock right now. Car id: " + carId);
+            if (carRepository.findById(carId).isEmpty()) {
+                throw new EntityNotFoundException("Cannot find a car with id " + carId);
+            }
+
+            throw new NoAvailableCarsException(
+                "This car is not in stock right now. Car id: " + carId);
         }
 
-        entityManager.refresh(car);
+        Car car = carRepository.findById(carId).get();
 
         Rental rental = new Rental()
                 .setUser(authenticatedUser)
@@ -113,7 +110,7 @@ public class RentalService {
     }
 
     public RentalResponseDto returnRental(Long id) {
-        Rental rental = rentalRepository.findByIdWithCar(id).orElseThrow(
+        Rental rental = rentalRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Cannot find a rental with id " + id)
         );
 
@@ -135,8 +132,6 @@ public class RentalService {
                 "Failed to increase inventory for car with id " + rental.getCar().getId()
             );
         }
-
-        entityManager.refresh(rental.getCar());
 
         return rentalMapper.toDto(rental);
     }

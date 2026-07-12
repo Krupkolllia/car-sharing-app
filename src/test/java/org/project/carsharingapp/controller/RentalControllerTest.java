@@ -113,6 +113,9 @@ public class RentalControllerTest extends AbstractControllerTest {
         assertThat(actualRental.getCar().getId())
             .isEqualTo(expectedCarAfterRental.id());
 
+        assertThat(actualRental.getCar().getInventory())
+            .isEqualTo(expectedCarAfterRental.inventory());
+
         assertThat(actualRental.getUser().getId())
             .isEqualTo(expected.userId());
     }
