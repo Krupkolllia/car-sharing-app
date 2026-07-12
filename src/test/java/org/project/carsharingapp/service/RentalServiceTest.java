@@ -19,7 +19,6 @@ import static org.project.carsharingapp.util.TestDataHelper.createRentalResponse
 import static org.project.carsharingapp.util.TestDataHelper.createTestCustomer;
 import static org.project.carsharingapp.util.TestDataHelper.createTestManager;
 
-import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -60,9 +59,6 @@ import org.springframework.data.domain.Pageable;
 public class RentalServiceTest {
 
     @Mock
-    private EntityManager entityManager;
-
-    @Mock
     private RentalPaymentService paymentService;
 
     @Mock
@@ -86,7 +82,6 @@ public class RentalServiceTest {
     @BeforeEach
     void setUp() {
         rentalService = new RentalService(
-            entityManager,
             paymentService,
             carRepository,
             rentalRepository,
@@ -160,8 +155,6 @@ public class RentalServiceTest {
         verify(carRepository).findById(car.getId());
         verify(carRepository).decreaseInventory(car.getId());
 
-        verify(entityManager).refresh(car);
-
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
         verify(notificationService).sendNotification(anyString());
@@ -169,7 +162,7 @@ public class RentalServiceTest {
         verify(rentalMapper).toDto(any(Rental.class));
         verify(rentalMapper).toMessageDto(any(Rental.class));
 
-        verifyNoMoreInteractions(carRepository, rentalMapper, entityManager, notificationService);
+        verifyNoMoreInteractions(carRepository, rentalMapper, notificationService);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -187,6 +180,7 @@ public class RentalServiceTest {
             TestDataHelper.FIXED_RETURN_DATE, invalidId
         );
 
+        when(carRepository.decreaseInventory(invalidId)).thenReturn(0);
         when(carRepository.findById(invalidId)).thenReturn(Optional.empty());
     
         // When & Then
@@ -194,10 +188,11 @@ public class RentalServiceTest {
             .isExactlyInstanceOf(EntityNotFoundException.class)
             .hasMessage("Cannot find a car with id " + invalidId);
 
+        verify(carRepository).decreaseInventory(invalidId);
         verify(carRepository).findById(invalidId);
         verifyNoMoreInteractions(carRepository);
 
-        verifyNoInteractions(rentalMapper, entityManager, notificationService);
+        verifyNoInteractions(rentalMapper, notificationService);
     }
 
     @Test
@@ -220,14 +215,13 @@ public class RentalServiceTest {
         // When & Then
         assertThatThrownBy(() -> rentalService.createRental(requestDto))
             .isExactlyInstanceOf(NoAvailableCarsException.class)
-            .hasMessage(car.getBrand() + " " + car.getModel()
-                + " is not in stock right now. Car id: " + car.getId());
+            .hasMessage("This car is not in stock right now. Car id: " + car.getId());
 
         verify(carRepository).findById(car.getId());
         verify(carRepository).decreaseInventory(car.getId());
         verifyNoMoreInteractions(carRepository);
 
-        verifyNoInteractions(rentalMapper, entityManager, notificationService);
+        verifyNoInteractions(rentalMapper, notificationService);
     }
 
     @ParameterizedTest
@@ -458,7 +452,7 @@ public class RentalServiceTest {
         expected = expected
             .withCar(expectedCar.withInventory(expectedCar.inventory() + 1));
 
-        when(rentalRepository.findByIdWithCar(rental.getId()))
+        when(rentalRepository.findById(rental.getId()))
             .thenReturn(Optional.of(rental));
 
         when(carRepository.increaseInventory(rental.getCar().getId()))
@@ -476,17 +470,15 @@ public class RentalServiceTest {
 
         assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_DATE);
 
-        verify(rentalRepository).findByIdWithCar(rental.getId());
+        verify(rentalRepository).findById(rental.getId());
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
         verify(carRepository).increaseInventory(rental.getCar().getId());
 
-        verify(entityManager).refresh(rental.getCar());
-
         verify(rentalMapper).toDto(rental);
 
-        verifyNoMoreInteractions(rentalRepository, carRepository, entityManager, rentalMapper);
+        verifyNoMoreInteractions(rentalRepository, carRepository, rentalMapper);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -500,17 +492,17 @@ public class RentalServiceTest {
         // Given
         Long invalidId = 404L;
 
-        when(rentalRepository.findByIdWithCar(invalidId)).thenReturn(Optional.empty());
+        when(rentalRepository.findById(invalidId)).thenReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> rentalService.returnRental(invalidId))
             .isExactlyInstanceOf(EntityNotFoundException.class)
             .hasMessage("Cannot find a rental with id " + invalidId);
 
-        verify(rentalRepository).findByIdWithCar(invalidId);
+        verify(rentalRepository).findById(invalidId);
         verifyNoMoreInteractions(rentalRepository);
 
-        verifyNoInteractions(carRepository, entityManager, rentalMapper);
+        verifyNoInteractions(carRepository, rentalMapper);
         securityUtilMock.verifyNoInteractions();
 
     }
@@ -527,7 +519,7 @@ public class RentalServiceTest {
         RentalResponseDto expected = createRentalResponseDto()
             .withActualReturnDate(TestClockConfig.FIXED_DATE);
 
-        when(rentalRepository.findByIdWithCar(rental.getId()))
+        when(rentalRepository.findById(rental.getId()))
             .thenReturn(Optional.of(rental));
 
         when(carRepository.increaseInventory(rental.getCar().getId())).thenReturn(1);
@@ -546,17 +538,15 @@ public class RentalServiceTest {
 
         assertThat(rental.getActualReturnDate()).isEqualTo(TestClockConfig.FIXED_DATE);
 
-        verify(rentalRepository).findByIdWithCar(rental.getId());
+        verify(rentalRepository).findById(rental.getId());
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
         verify(carRepository).increaseInventory(rental.getCar().getId());
 
-        verify(entityManager).refresh(rental.getCar());
-
         verify(rentalMapper).toDto(rental);
 
-        verifyNoMoreInteractions(rentalRepository, carRepository, entityManager, rentalMapper);
+        verifyNoMoreInteractions(rentalRepository, carRepository, rentalMapper);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -572,7 +562,7 @@ public class RentalServiceTest {
         Rental rental = createRental();
         rental.getUser().setId(404L).setEmail("another.customer@mail.com");
 
-        when(rentalRepository.findByIdWithCar(rental.getId()))
+        when(rentalRepository.findById(rental.getId()))
             .thenReturn(Optional.of(rental));
 
 
@@ -581,14 +571,14 @@ public class RentalServiceTest {
             .isExactlyInstanceOf(EntityNotFoundException.class)
             .hasMessage("Cannot find a rental with id " + rental.getId());
 
-        verify(rentalRepository).findByIdWithCar(rental.getId());
+        verify(rentalRepository).findById(rental.getId());
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
         verifyNoMoreInteractions(rentalRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(carRepository, entityManager, rentalMapper);
+        verifyNoInteractions(carRepository, rentalMapper);
 
     }
 
@@ -602,7 +592,7 @@ public class RentalServiceTest {
         Rental rental = createRental();
         rental.setActualReturnDate(TestClockConfig.FIXED_DATE);
 
-        when(rentalRepository.findByIdWithCar(rental.getId()))
+        when(rentalRepository.findById(rental.getId()))
             .thenReturn(Optional.of(rental));
 
         // When & Then
@@ -610,14 +600,14 @@ public class RentalServiceTest {
             .isExactlyInstanceOf(RentalAlreadyReturnedException.class)
             .hasMessage("Rental is already returned. Rental id: " + rental.getId());
 
-        verify(rentalRepository).findByIdWithCar(rental.getId());
+        verify(rentalRepository).findById(rental.getId());
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
         verifyNoMoreInteractions(rentalRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(carRepository, entityManager, rentalMapper);
+        verifyNoInteractions(carRepository, rentalMapper);
 
     }
 
@@ -631,7 +621,7 @@ public class RentalServiceTest {
         // Given
         Rental rental = createRental();
 
-        when(rentalRepository.findByIdWithCar(rental.getId()))
+        when(rentalRepository.findById(rental.getId()))
             .thenReturn(Optional.of(rental));
 
         when(carRepository.increaseInventory(rental.getCar().getId()))
@@ -642,7 +632,7 @@ public class RentalServiceTest {
             .isExactlyInstanceOf(IllegalStateException.class)
             .hasMessage("Failed to increase inventory for car with id " + rental.getCar().getId());
 
-        verify(rentalRepository).findByIdWithCar(rental.getId());
+        verify(rentalRepository).findById(rental.getId());
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
@@ -651,7 +641,7 @@ public class RentalServiceTest {
         verifyNoMoreInteractions(rentalRepository, carRepository);
         securityUtilMock.verifyNoMoreInteractions();
 
-        verifyNoInteractions(entityManager, rentalMapper);
+        verifyNoInteractions(rentalMapper);
 
     }
     
