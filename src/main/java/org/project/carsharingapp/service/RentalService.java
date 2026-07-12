@@ -1,6 +1,5 @@
 package org.project.carsharingapp.service;
 
-import jakarta.persistence.EntityManager;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,8 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class RentalService {
 
     private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
-
-    private final EntityManager entityManager;
 
     private final RentalPaymentService paymentService;
 
@@ -113,7 +110,7 @@ public class RentalService {
     }
 
     public RentalResponseDto returnRental(Long id) {
-        Rental rental = rentalRepository.findByIdWithCar(id).orElseThrow(
+        Rental rental = rentalRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Cannot find a rental with id " + id)
         );
 
@@ -135,8 +132,6 @@ public class RentalService {
                 "Failed to increase inventory for car with id " + rental.getCar().getId()
             );
         }
-
-        entityManager.refresh(rental.getCar());
 
         return rentalMapper.toDto(rental);
     }

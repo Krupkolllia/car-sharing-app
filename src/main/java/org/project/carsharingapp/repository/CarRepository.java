@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface CarRepository extends JpaRepository<Car, Long> {
 
     @Modifying
+    @Transactional(propagation = Propagation.MANDATORY)
     @Query("""
             UPDATE Car c
             SET c.inventory = c.inventory + 1
