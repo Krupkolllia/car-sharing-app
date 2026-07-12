@@ -19,9 +19,10 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.notifications.NotificationService;
+import org.project.carsharingapp.service.notifications.NotificationRequestedEvent;
 import org.project.carsharingapp.service.payment.RentalPaymentService;
 import org.project.carsharingapp.util.MessageBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class RentalService {
 
     private static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final RentalPaymentService paymentService;
 
     private final CarRepository carRepository;
@@ -41,8 +44,6 @@ public class RentalService {
     private final RentalRepository rentalRepository;
 
     private final RentalMapper rentalMapper;
-
-    private final NotificationService notificationService;
 
     private final Clock clock;
 
@@ -76,8 +77,9 @@ public class RentalService {
 
         RentalMessageDto rentalMessageDto = rentalMapper.toMessageDto(rental);
 
-        notificationService.sendNotification(
-                MessageBuilder.buildRentalCreatedMessage(rentalMessageDto));
+        publishNotificationRequestedEvent(
+                MessageBuilder.buildRentalCreatedMessage(rentalMessageDto)
+        );
 
         return rentalMapper.toDto(rental);
     }
@@ -143,15 +145,20 @@ public class RentalService {
                 rentalRepository.findAllOverdue(LocalDate.now(clock));
 
         if (overdueRentals.isEmpty()) {
-            notificationService.sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
+            publishNotificationRequestedEvent(NO_OVERDUE_RENTALS_MESSAGE);
             return;
         }
 
         overdueRentals.forEach(rental ->
-                notificationService.sendNotification(
+                publishNotificationRequestedEvent(
                     MessageBuilder.buildOverdueRentalMessage(
                         rentalMapper.toMessageDto(rental))
-            )
+        ));
+    }
+
+    private void publishNotificationRequestedEvent(String message) {
+        eventPublisher.publishEvent(
+            new NotificationRequestedEvent(message)
         );
     }
 }
