@@ -24,9 +24,10 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.PaymentRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
-import org.project.carsharingapp.service.NotificationService;
+import org.project.carsharingapp.service.notifications.NotificationRequestedEvent;
 import org.project.carsharingapp.service.payment.calculator.RentalPaymentCalculatorResolver;
 import org.project.carsharingapp.util.MessageBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,6 +48,8 @@ public class RentalPaymentService
 
     private static final Long QUANTITY = 1L;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final PaymentRepository paymentRepository;
 
     private final RentalPaymentMapper paymentMapper;
@@ -56,8 +59,6 @@ public class RentalPaymentService
     private final PaymentGateway paymentGateway;
 
     private final RentalRepository rentalRepository;
-
-    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -140,10 +141,11 @@ public class RentalPaymentService
 
         payment.setStatus(PaymentStatus.PAID);
 
-        notificationService.sendNotification(
+        eventPublisher.publishEvent(new NotificationRequestedEvent(
                 MessageBuilder.buildRentalPaymentCompletedMessage(
-                    paymentMapper.toMessageDto(payment))
-        );
+                    paymentMapper.toMessageDto(payment)
+                )
+        ));
 
         return paymentMapper.toDto(payment);
     }

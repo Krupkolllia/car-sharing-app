@@ -3,7 +3,6 @@ package org.project.carsharingapp.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,15 +47,20 @@ import org.project.carsharingapp.model.user.User;
 import org.project.carsharingapp.repository.CarRepository;
 import org.project.carsharingapp.repository.RentalRepository;
 import org.project.carsharingapp.security.SecurityUtil;
+import org.project.carsharingapp.service.notifications.NotificationRequestedEvent;
 import org.project.carsharingapp.service.payment.RentalPaymentService;
 import org.project.carsharingapp.util.MessageBuilder;
 import org.project.carsharingapp.util.TestDataHelper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class RentalServiceTest {
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private RentalPaymentService paymentService;
@@ -70,9 +74,6 @@ public class RentalServiceTest {
     @Mock
     private RentalMapper rentalMapper;
 
-    @Mock
-    private NotificationService notificationService;
-
     private RentalService rentalService;
 
     private MockedStatic<SecurityUtil> securityUtilMock;
@@ -82,11 +83,11 @@ public class RentalServiceTest {
     @BeforeEach
     void setUp() {
         rentalService = new RentalService(
+            eventPublisher,
             paymentService,
             carRepository,
             rentalRepository,
             rentalMapper,
-            notificationService,
             TestClockConfig.FIXED_CLOCK
         );
 
@@ -126,6 +127,9 @@ public class RentalServiceTest {
 
         RentalResponseDto expected = createRentalResponseDto();
 
+        String message = MessageBuilder
+                .buildRentalCreatedMessage(createRentalMessageDto());
+
         when(carRepository.findById(car.getId())).thenReturn(Optional.of(car));
 
         when(carRepository.decreaseInventory(car.getId())).thenReturn(1);
@@ -157,12 +161,12 @@ public class RentalServiceTest {
 
         securityUtilMock.verify(SecurityUtil::getAuthenticatedUser);
 
-        verify(notificationService).sendNotification(anyString());
+        verify(eventPublisher).publishEvent(new NotificationRequestedEvent(message));
 
         verify(rentalMapper).toDto(any(Rental.class));
         verify(rentalMapper).toMessageDto(any(Rental.class));
 
-        verifyNoMoreInteractions(carRepository, rentalMapper, notificationService);
+        verifyNoMoreInteractions(carRepository, rentalMapper, eventPublisher);
         securityUtilMock.verifyNoMoreInteractions();
 
     }
@@ -192,7 +196,7 @@ public class RentalServiceTest {
         verify(carRepository).findById(invalidId);
         verifyNoMoreInteractions(carRepository);
 
-        verifyNoInteractions(rentalMapper, notificationService);
+        verifyNoInteractions(rentalMapper, eventPublisher);
     }
 
     @Test
@@ -221,7 +225,7 @@ public class RentalServiceTest {
         verify(carRepository).decreaseInventory(car.getId());
         verifyNoMoreInteractions(carRepository);
 
-        verifyNoInteractions(rentalMapper, notificationService);
+        verifyNoInteractions(rentalMapper, eventPublisher);
     }
 
     @ParameterizedTest
@@ -656,16 +660,24 @@ public class RentalServiceTest {
         Rental secondRental = createRental(2L);
         Rental thirdRental = createRental(3L);
 
-        RentalMessageDto firstMessage = createRentalMessageDto(1L);
-        RentalMessageDto secondMessage = createRentalMessageDto(2L);
-        RentalMessageDto thirdMessage = createRentalMessageDto(3L);
+        RentalMessageDto firstMessageDto = createRentalMessageDto(1L);
+        RentalMessageDto secondMessageDto = createRentalMessageDto(2L);
+        RentalMessageDto thirdMessageDto = createRentalMessageDto(3L);
+
+        String firstMessage = MessageBuilder
+            .buildOverdueRentalMessage(firstMessageDto);
+        String secondMessage = MessageBuilder
+            .buildOverdueRentalMessage(secondMessageDto);
+        String thirdMessage = MessageBuilder
+            .buildOverdueRentalMessage(thirdMessageDto);
+
 
         when(rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE))
             .thenReturn(List.of(firstRental, secondRental, thirdRental));
 
-        when(rentalMapper.toMessageDto(firstRental)).thenReturn(firstMessage);
-        when(rentalMapper.toMessageDto(secondRental)).thenReturn(secondMessage);
-        when(rentalMapper.toMessageDto(thirdRental)).thenReturn(thirdMessage);
+        when(rentalMapper.toMessageDto(firstRental)).thenReturn(firstMessageDto);
+        when(rentalMapper.toMessageDto(secondRental)).thenReturn(secondMessageDto);
+        when(rentalMapper.toMessageDto(thirdRental)).thenReturn(thirdMessageDto);
 
         // When
         rentalService.sendOverdueRentalNotifications();
@@ -677,16 +689,14 @@ public class RentalServiceTest {
         verify(rentalMapper).toMessageDto(secondRental);
         verify(rentalMapper).toMessageDto(thirdRental);
 
-        verify(notificationService)
-            .sendNotification(MessageBuilder.buildOverdueRentalMessage(firstMessage));
-        verify(notificationService)
-            .sendNotification(MessageBuilder.buildOverdueRentalMessage(secondMessage));
-        verify(notificationService)
-            .sendNotification(MessageBuilder.buildOverdueRentalMessage(thirdMessage));
+        verify(eventPublisher).publishEvent(new NotificationRequestedEvent(firstMessage));
+        verify(eventPublisher).publishEvent(new NotificationRequestedEvent(secondMessage));
+        verify(eventPublisher).publishEvent(new NotificationRequestedEvent(thirdMessage));
 
-        verify(notificationService, never()).sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
+        verify(eventPublisher, never())
+            .publishEvent(new NotificationRequestedEvent(NO_OVERDUE_RENTALS_MESSAGE));
 
-        verifyNoMoreInteractions(rentalRepository, rentalMapper, notificationService);
+        verifyNoMoreInteractions(rentalRepository, rentalMapper, eventPublisher);
     
     }
     
@@ -705,9 +715,11 @@ public class RentalServiceTest {
         
         // Then
         verify(rentalRepository).findAllOverdue(TestClockConfig.FIXED_DATE);
-        verify(notificationService).sendNotification(NO_OVERDUE_RENTALS_MESSAGE);
-        
-        verifyNoMoreInteractions(rentalRepository, notificationService);
+        verify(eventPublisher)
+            .publishEvent(new NotificationRequestedEvent(NO_OVERDUE_RENTALS_MESSAGE));
+
+
+        verifyNoMoreInteractions(rentalRepository, eventPublisher);
         verifyNoInteractions(rentalMapper);
 
     }

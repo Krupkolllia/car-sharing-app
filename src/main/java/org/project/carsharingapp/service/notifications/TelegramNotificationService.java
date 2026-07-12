@@ -1,4 +1,4 @@
-package org.project.carsharingapp.service;
+package org.project.carsharingapp.service.notifications;
 
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.properties.TelegramProperties;
