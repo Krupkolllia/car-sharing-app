@@ -1,6 +1,7 @@
 package org.project.carsharingapp.service.payment;
 
 import com.stripe.Stripe;
+import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -27,6 +28,8 @@ public class StripePaymentGateway implements PaymentGateway {
     private static final String STRIPE_EXPIRED_STATUS = "expired";
 
     private static final BigDecimal CENTS_IN_DOLLAR = BigDecimal.valueOf(100);
+
+    private final StripeClient stripeClient;
 
     private final StripePaymentUrlBuilder urlBuilder;
 
@@ -63,7 +66,11 @@ public class StripePaymentGateway implements PaymentGateway {
                 ).build();
 
         try {
-            Session session = Session.create(params);
+            Session session = stripeClient
+                    .v1()
+                    .checkout()
+                    .sessions()
+                    .create(params);
 
             return new PaymentSession(
                 session.getId(),
@@ -78,7 +85,11 @@ public class StripePaymentGateway implements PaymentGateway {
     @Override
     public PaymentSessionStatus getStatus(String sessionId) {
         try {
-            Session session = Session.retrieve(sessionId);
+            Session session = stripeClient
+                    .v1()
+                    .checkout()
+                    .sessions()
+                    .retrieve(sessionId);
 
             if (STRIPE_PAID_STATUS.equals(session.getPaymentStatus())) {
                 return PaymentSessionStatus.PAID;
