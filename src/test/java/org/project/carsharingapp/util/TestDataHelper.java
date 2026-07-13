@@ -14,6 +14,9 @@ import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.car.CarType;
+import org.project.carsharingapp.model.payment.Payment;
+import org.project.carsharingapp.model.payment.PaymentStatus;
+import org.project.carsharingapp.model.payment.PaymentType;
 import org.project.carsharingapp.model.rental.Rental;
 import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
@@ -21,6 +24,7 @@ import org.project.carsharingapp.model.user.User;
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
     public static final String ADD_RENTAL_SCRIPT_PATH = "classpath:database/add-rental-test-data.sql";
+    public static final String ADD_PAYMENT_SCRIPT_PATH = "classpath:database/add-payment-test-data.sql";
 
     public static final Long CAR_ID = 1L;
 
@@ -175,5 +179,70 @@ public class TestDataHelper {
             3
         );
     }
+
+    public static Payment createPendingPayment(Long id, Long rentalId) {
+        return new Payment()
+            .setId(id)
+            .setStatus(PaymentStatus.PENDING)
+            .setType(PaymentType.PAYMENT)
+            .setRental(createRental(rentalId))
+            .setSessionUrl("test-session-url")
+            .setSessionId("test-session-id")
+            .setTotal(new BigDecimal("199.99"));
+    }
+
+    public static Payment createPendingPayment() {
+        return createPendingPayment(1L, 1L);
+    }
+
+    public static List<Payment> createPayments() {
+        Rental firstRental = createRental(1L);
+
+        Rental secondRental = new Rental()
+            .setId(2L)
+            .setRentalDate(FIXED_DATE)
+            .setReturnDate(FIXED_RETURN_DATE)
+            .setActualReturnDate(FIXED_RETURN_DATE.plusDays(1))
+            .setCar(new Car()
+                .setId(2L)
+                .setModel("RX")
+                .setBrand("Lexus")
+                .setType(CarType.SUV)
+                .setInventory(3)
+                .setDailyFee(new BigDecimal("49.99"))
+                .setDeleted(false))
+            .setUser(createTestCustomer());
+
+        return List.of(
+            new Payment()
+                .setId(1L)
+                .setStatus(PaymentStatus.PENDING)
+                .setType(PaymentType.PAYMENT)
+                .setRental(firstRental)
+                .setSessionUrl("testurl1")
+                .setSessionId("testid1")
+                .setTotal(new BigDecimal("359.91")),
+
+            new Payment()
+                .setId(2L)
+                .setStatus(PaymentStatus.PAID)
+                .setType(PaymentType.PAYMENT)
+                .setRental(secondRental)
+                .setSessionUrl("testurl2")
+                .setSessionId("testid2")
+                .setTotal(new BigDecimal("449.91")),
+
+            new Payment()
+                .setId(3L)
+                .setStatus(PaymentStatus.PENDING)
+                .setType(PaymentType.FINE)
+                .setRental(secondRental)
+                .setSessionUrl("testurl3")
+                .setSessionId("testid3")
+                .setTotal(new BigDecimal("64.99"))
+        );
+    }
+
+
 
 }
