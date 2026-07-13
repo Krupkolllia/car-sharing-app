@@ -1,5 +1,6 @@
 package org.project.carsharingapp.repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -26,6 +28,15 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
             @Param("isActive") Boolean isActive,
             Pageable pageable
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT r
+            FROM Rental r
+            JOIN FETCH r.car
+            WHERE r.id = :id
+            """)
+    Optional<Rental> findByIdForUpdate(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"car"})
     @Query("SELECT r FROM Rental r WHERE r.id = :id")
