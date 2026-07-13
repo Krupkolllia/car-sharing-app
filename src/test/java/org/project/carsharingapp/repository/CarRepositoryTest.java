@@ -38,11 +38,11 @@ public class CarRepositoryTest {
 
         // When
         int actual = carRepository.increaseInventory(car.getId());
-        entityManager.refresh(car);
+        Car updatedCar = carRepository.findById(CAR_ID).orElseThrow();
 
         // Then
         assertThat(actual).isOne();
-        assertThat(car.getInventory()).isEqualTo(oldInventoryValue + 1);
+        assertThat(updatedCar.getInventory()).isEqualTo(oldInventoryValue + 1);
     }
 
     @Test

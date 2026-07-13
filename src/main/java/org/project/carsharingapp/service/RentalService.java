@@ -123,7 +123,7 @@ public class RentalService {
     }
 
     public RentalResponseDto returnRental(Long id) {
-        Rental rental = rentalRepository.findById(id).orElseThrow(
+        Rental rental = rentalRepository.findByIdForUpdate(id).orElseThrow(
                 () -> new EntityNotFoundException("Cannot find a rental with id " + id)
         );
 
@@ -155,14 +155,18 @@ public class RentalService {
             );
         }
 
-        log.info(
-                "Car returned: rentalId={}, returnDate={}, actualReturnDate={}",
-                rental.getId(),
-                rental.getReturnDate(),
-                rental.getActualReturnDate()
+        Rental updatedRental = rentalRepository.findByIdWithCar(id).orElseThrow(
+                () -> new EntityNotFoundException("Cannot find a rental with id " + id)
         );
 
-        return rentalMapper.toDto(rental);
+        log.info(
+                "Car returned: rentalId={}, returnDate={}, actualReturnDate={}",
+                updatedRental.getId(),
+                updatedRental.getReturnDate(),
+                updatedRental.getActualReturnDate()
+        );
+
+        return rentalMapper.toDto(updatedRental);
     }
 
     @Transactional(readOnly = true)

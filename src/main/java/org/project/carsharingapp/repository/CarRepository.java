@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface CarRepository extends JpaRepository<Car, Long> {
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Transactional(propagation = Propagation.MANDATORY)
     @Query("""
             UPDATE Car c
