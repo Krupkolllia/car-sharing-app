@@ -5,8 +5,8 @@ import org.project.carsharingapp.dto.auth.AuthResponseDto;
 import org.project.carsharingapp.dto.auth.UserLoginRequestDto;
 import org.project.carsharingapp.dto.auth.UserRegisterRequestDto;
 import org.project.carsharingapp.dto.auth.UserResponseDto;
-import org.project.carsharingapp.exception.LoginException;
-import org.project.carsharingapp.exception.RegistrationException;
+import org.project.carsharingapp.exception.EmailAlreadyInUseException;
+import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
 import org.project.carsharingapp.mapper.UserMapper;
 import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
@@ -34,8 +34,7 @@ public class AuthenticationService {
 
     public UserResponseDto register(UserRegisterRequestDto requestDto) {
         if (userRepository.existsByEmail(requestDto.email())) {
-            throw new RegistrationException("User already registered with email: "
-                + requestDto.email());
+            throw new EmailAlreadyInUseException("An account with this email already exists");
         }
 
         User user = userMapper.toModel(requestDto);
@@ -55,7 +54,8 @@ public class AuthenticationService {
         );
 
         if (!(authentication.getPrincipal() instanceof UserDetails user)) {
-            throw new LoginException("Authentication principal is invalid");
+            throw new InvalidAuthenticationPrincipalException(
+                "Authentication principal is invalid");
         }
 
         return new AuthResponseDto(jwtUtil.generateToken(user));

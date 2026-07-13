@@ -3,7 +3,7 @@ package org.project.carsharingapp.service.payment.calculator;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
-import org.project.carsharingapp.exception.PaymentCalculationException;
+import org.project.carsharingapp.exception.RentalDurationInvalidException;
 import org.project.carsharingapp.model.payment.PaymentType;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class RentalRegularPaymentCalculator implements RentalPaymentCalculator {
         );
 
         if (rentalDays <= 0) {
-            throw new PaymentCalculationException("Rental duration must be positive");
+            throw new RentalDurationInvalidException("Rental duration must be positive");
         }
 
         return source.dailyFee()

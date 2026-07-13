@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
-import org.project.carsharingapp.exception.PaymentCalculationException;
+import org.project.carsharingapp.exception.RentalNotOverdueException;
+import org.project.carsharingapp.exception.RentalNotReturnedException;
 import org.project.carsharingapp.model.payment.PaymentType;
 import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class RentalFinePaymentCalculator implements RentalPaymentCalculator {
     @Override
     public BigDecimal calculate(RentalPaymentCalculationSource source) {
         if (source.actualReturnDate() == null) {
-            throw new PaymentCalculationException(
+            throw new RentalNotReturnedException(
                 "Cannot create fine payment before rental is returned"
             );
         }
@@ -34,7 +35,7 @@ public class RentalFinePaymentCalculator implements RentalPaymentCalculator {
         );
 
         if (overdueDays <= 0) {
-            throw new PaymentCalculationException("Rental is not overdue");
+            throw new RentalNotOverdueException("Rental is not overdue");
         }
 
         return source.dailyFee()

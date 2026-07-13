@@ -20,8 +20,8 @@ import org.project.carsharingapp.dto.auth.AuthResponseDto;
 import org.project.carsharingapp.dto.auth.UserLoginRequestDto;
 import org.project.carsharingapp.dto.auth.UserRegisterRequestDto;
 import org.project.carsharingapp.dto.auth.UserResponseDto;
-import org.project.carsharingapp.exception.LoginException;
-import org.project.carsharingapp.exception.RegistrationException;
+import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
+import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.mapper.UserMapper;
 import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
@@ -112,9 +112,9 @@ public class AuthenticationServiceTest {
     @Test
     @DisplayName("""
         register method with a registered email
-        should throw RegistrationException
+        should throw EmailAlreadyInUseException
         """)
-    void register_WithRegisteredEmail_ShouldThrowRegistrationException() {
+    void register_WithRegisteredEmail_ShouldThrowEmailAlreadyInUseException() {
         // Given
         String registeredEmail = "registered.user@mail.com";
 
@@ -126,8 +126,8 @@ public class AuthenticationServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> authenticationService.register(requestDto))
-            .isExactlyInstanceOf(RegistrationException.class)
-            .hasMessage("User already registered with email: " + requestDto.email());
+            .isExactlyInstanceOf(EmailAlreadyInUseException.class)
+            .hasMessage("An account with this email already exists");
 
         verify(userRepository).existsByEmail(requestDto.email());
         verifyNoMoreInteractions(userRepository);
@@ -203,9 +203,9 @@ public class AuthenticationServiceTest {
     @Test
     @DisplayName("""
         login method when authentication principal is not UserDetails
-        should throw LoginException
+        should throw InvalidAuthenticationPrincipalException
         """)
-    void login_WithNonUserDetailsPrincipal_ShouldThrowLoginException() {
+    void login_WithNonUserDetailsPrincipal_ShouldThrowInvalidAuthenticationPrincipalException() {
         // Given
         UserLoginRequestDto requestDto = new UserLoginRequestDto(
             "test.email@mail.com", "testPassword"
@@ -220,7 +220,7 @@ public class AuthenticationServiceTest {
 
         // When & Then
         assertThatThrownBy(() -> authenticationService.login(requestDto))
-            .isExactlyInstanceOf(LoginException.class)
+            .isExactlyInstanceOf(InvalidAuthenticationPrincipalException.class)
             .hasMessage("Authentication principal is invalid");
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
