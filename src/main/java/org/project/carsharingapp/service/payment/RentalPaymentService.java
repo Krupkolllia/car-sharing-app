@@ -241,7 +241,7 @@ public class RentalPaymentService
     @Transactional(readOnly = true)
     public boolean hasUnpaidPayment(Long userId) {
         return paymentRepository
-            .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
+            .existsByRentalUserIdAndStatusIn(userId, BLOCKING_STATUSES);
     }
 
     private String buildProductName(Rental rental, PaymentType paymentType) {
