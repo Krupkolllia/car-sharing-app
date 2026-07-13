@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.project.carsharingapp.util.TestDataHelper.CAR_ID;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
 import static org.project.carsharingapp.util.TestDataHelper.NO_OVERDUE_RENTALS_MESSAGE;
 import static org.project.carsharingapp.util.TestDataHelper.createCar;
@@ -40,6 +41,7 @@ import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
+import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
 import org.project.carsharingapp.mapper.RentalMapper;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.rental.Rental;
@@ -168,6 +170,31 @@ public class RentalServiceTest {
 
         verifyNoMoreInteractions(carRepository, rentalMapper, eventPublisher);
         securityUtilMock.verifyNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("""
+        createRental method when customer has at least one unpaid payment
+        should throw UnpaidPaymentExistsException
+        """)
+    void createRental_WhenUserHasUnpaidPayment_ShouldThrowUnpaidPaymentExistsException() {
+        // Given
+        RentalRequestDto requestDto = new RentalRequestDto(
+            TestDataHelper.FIXED_RETURN_DATE, CAR_ID
+        );
+
+        when(paymentService.hasUnpaidPayment(authenticatedUser.getId()))
+            .thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> rentalService.createRental(requestDto))
+            .isExactlyInstanceOf(UnpaidPaymentExistsException.class)
+                .hasMessage("User has an unpaid payment");
+
+        verify(paymentService).hasUnpaidPayment(authenticatedUser.getId());
+        verifyNoMoreInteractions(paymentService);
+
+        verifyNoInteractions(carRepository, rentalRepository, rentalMapper, eventPublisher);
 
     }
     
