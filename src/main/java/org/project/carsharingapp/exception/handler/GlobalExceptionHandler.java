@@ -2,74 +2,120 @@ package org.project.carsharingapp.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.exception.EntityNotFoundException;
-import org.project.carsharingapp.exception.LoginException;
+import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
-import org.project.carsharingapp.exception.RegistrationException;
+import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
+import org.project.carsharingapp.exception.RentalDurationInvalidException;
+import org.project.carsharingapp.exception.RentalNotOverdueException;
+import org.project.carsharingapp.exception.RentalNotReturnedException;
+import org.project.carsharingapp.exception.StripeSessionCreationException;
+import org.project.carsharingapp.exception.StripeSessionRetrievingException;
+import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
+import org.project.carsharingapp.exception.UnsupportedPaymentTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Slf4j
 @RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleEntityNotFound(
-            EntityNotFoundException e, HttpServletRequest request
-    ) {
-        return handle(e, request, HttpStatus.NOT_FOUND);
-    }
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({
-        RegistrationException.class,
+        EmailAlreadyInUseException.class,
         NoAvailableCarsException.class,
-        RentalAlreadyReturnedException.class
+        RentalAlreadyReturnedException.class,
+        RentalNotOverdueException.class,
+        RentalNotReturnedException.class,
+        UnpaidPaymentExistsException.class
     })
     public ResponseEntity<ExceptionResponse> handleConflict(
             RuntimeException e, HttpServletRequest request
     ) {
-        return handle(e, request, HttpStatus.CONFLICT);
+        return buildResponse(
+            HttpStatus.CONFLICT,
+            e.getMessage(),
+            request.getRequestURI()
+        );
     }
 
     @ExceptionHandler({
-        LoginException.class,
+        PaymentProcessingException.class,
+        StripeSessionCreationException.class,
+        StripeSessionRetrievingException.class,
+    })
+    public ResponseEntity<ExceptionResponse> handlePayment(
+            RuntimeException e, HttpServletRequest request
+    ) {
+        log.error(
+                "Payment service failure. Method: {}, path: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e
+        );
+
+        return buildResponse(
+            HttpStatus.BAD_GATEWAY,
+            "Payment service is temporarily unavailable",
+            request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler({
+        InvalidAuthenticationPrincipalException.class,
         AuthenticationException.class
     })
     public ResponseEntity<ExceptionResponse> handleUnauthorized(
             RuntimeException e, HttpServletRequest request
     ) {
-        return handle(e, request, HttpStatus.UNAUTHORIZED);
+        return buildResponse(
+            HttpStatus.UNAUTHORIZED,
+            "Authentication required",
+            request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleEntityNotFound(
+            EntityNotFoundException e, HttpServletRequest request
+    ) {
+        return buildResponse(
+            HttpStatus.NOT_FOUND,
+            e.getMessage(),
+            request.getRequestURI()
+        );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleAccessDenied(
             AccessDeniedException e, HttpServletRequest request
     ) {
-        return handle(e, request, HttpStatus.FORBIDDEN);
+        return buildResponse(
+            HttpStatus.FORBIDDEN,
+            "Access denied",
+            request.getRequestURI()
+        );
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleValidation(
-            MethodArgumentNotValidException e, HttpServletRequest request
+    @ExceptionHandler({
+        UnsupportedPaymentTypeException.class,
+        RentalDurationInvalidException.class
+    })
+    public ResponseEntity<ExceptionResponse> handleBadRequest(
+            RuntimeException e, HttpServletRequest request
     ) {
-        Map<String, String> errors = new HashMap<>();
-
-        e.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
         return buildResponse(
             HttpStatus.BAD_REQUEST,
-            "Validation failed",
-            request.getRequestURI(),
-            errors
+            e.getMessage(),
+            request.getRequestURI()
         );
     }
 
@@ -77,21 +123,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleAll(
             Exception e, HttpServletRequest request
     ) {
+        log.error(
+                "Unhandled exception. Method: {}, path: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e
+        );
+
         return buildResponse(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            e.getMessage(),
-            request.getRequestURI()
-        );
-    }
-
-    private ResponseEntity<ExceptionResponse> handle(
-            Exception e,
-            HttpServletRequest request,
-            HttpStatus status
-    ) {
-        return buildResponse(
-            status,
-            e.getMessage(),
+            "Internal server error",
             request.getRequestURI()
         );
     }
@@ -101,15 +142,6 @@ public class GlobalExceptionHandler {
             String message,
             String path
     ) {
-        return buildResponse(status, message, path, Map.of());
-    }
-
-    private ResponseEntity<ExceptionResponse> buildResponse(
-            HttpStatus status,
-            String message,
-            String path,
-            Map<String, String> errors
-    ) {
         return ResponseEntity
             .status(status)
             .body(new ExceptionResponse(
@@ -117,7 +149,7 @@ public class GlobalExceptionHandler {
                 message,
                 path,
                 LocalDateTime.now(),
-                errors
+                Map.of()
             ));
     }
 }
