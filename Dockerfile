@@ -2,7 +2,7 @@ FROM maven:3.9.16-eclipse-temurin-17-alpine AS build
 
 WORKDIR /application
 
-COPY pom.xml .
+COPY pom.xml checkstyle.xml ./
 
 RUN mvn -B dependency:go-offline
 
