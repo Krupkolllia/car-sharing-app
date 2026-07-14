@@ -17,6 +17,11 @@ public class RentalRegularPaymentCalculator implements RentalPaymentCalculator {
 
     @Override
     public BigDecimal calculate(RentalPaymentCalculationSource source) {
+        if (source.actualReturnDate() != null) {
+            throw new RentalReturnedException(
+                "Cannot create rental payment for returned car");
+        }
+
         long rentalDays = ChronoUnit.DAYS.between(
                 source.rentalDate(),
                 source.returnDate()

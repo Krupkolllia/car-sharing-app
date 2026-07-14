@@ -13,6 +13,7 @@ import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
 import org.project.carsharingapp.exception.RentalDurationInvalidException;
 import org.project.carsharingapp.exception.RentalNotOverdueException;
 import org.project.carsharingapp.exception.RentalNotReturnedException;
+import org.project.carsharingapp.exception.RentalReturnedException;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
 import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         RentalAlreadyReturnedException.class,
         RentalNotOverdueException.class,
         RentalNotReturnedException.class,
+        RentalReturnedException.class,
         UnpaidPaymentExistsException.class
     })
     public ResponseEntity<ExceptionResponse> handleConflict(
