@@ -3,7 +3,9 @@ package org.project.carsharingapp.service.payment.calculator;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
+import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
 import org.project.carsharingapp.exception.RentalDurationInvalidException;
+import org.project.carsharingapp.exception.RentalReturnedException;
 import org.project.carsharingapp.model.payment.PaymentType;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,11 @@ public class RentalRegularPaymentCalculator implements RentalPaymentCalculator {
 
     @Override
     public BigDecimal calculate(RentalPaymentCalculationSource source) {
+        if (source.dailyFee().doubleValue() < 0) {
+            throw new DailyFeeNegativeValueException(
+                "Daily fee must be positive or zero");
+        }
+
         if (source.actualReturnDate() != null) {
             throw new RentalReturnedException(
                 "Cannot create rental payment for returned car");

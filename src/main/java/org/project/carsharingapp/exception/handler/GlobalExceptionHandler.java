@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
 import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
@@ -34,9 +35,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         EmailAlreadyInUseException.class,
         NoAvailableCarsException.class,
         RentalAlreadyReturnedException.class,
-        RentalNotOverdueException.class,
-        RentalNotReturnedException.class,
-        RentalReturnedException.class,
         UnpaidPaymentExistsException.class
     })
     public ResponseEntity<ExceptionResponse> handleConflict(
@@ -109,7 +107,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({
         UnsupportedPaymentTypeException.class,
-        RentalDurationInvalidException.class
+        RentalDurationInvalidException.class,
+        RentalNotReturnedException.class,
+        RentalReturnedException.class,
+        RentalNotOverdueException.class,
+        DailyFeeNegativeValueException.class
     })
     public ResponseEntity<ExceptionResponse> handleBadRequest(
             RuntimeException e, HttpServletRequest request

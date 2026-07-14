@@ -2,65 +2,67 @@ package org.project.carsharingapp.service.payment.calculator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.project.carsharingapp.service.payment.calculator.RentalRegularPaymentCalculatorTest.RENTAL_DATE;
+import static org.project.carsharingapp.service.payment.calculator.RentalRegularPaymentCalculatorTest.RETURN_DATE;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.project.carsharingapp.config.TestClockConfig;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
 import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
-import org.project.carsharingapp.exception.RentalDurationInvalidException;
-import org.project.carsharingapp.exception.RentalReturnedException;
+import org.project.carsharingapp.exception.RentalNotOverdueException;
+import org.project.carsharingapp.exception.RentalNotReturnedException;
 import org.project.carsharingapp.model.payment.PaymentType;
+import org.project.carsharingapp.properties.PaymentProperties;
+import org.project.carsharingapp.properties.PaymentProperties.Stripe;
 
-public class RentalRegularPaymentCalculatorTest {
-
-    private static final LocalDate RENTAL_DATE = TestClockConfig.FIXED_DATE;
-
-    private static final LocalDate RETURN_DATE =
-            TestClockConfig.FIXED_DATE.plusDays(7);
+public class RentalFinePaymentCalculatorTest {
 
     private RentalPaymentCalculator calculator;
 
     @BeforeEach
     void setUp() {
-        calculator = new RentalRegularPaymentCalculator();
+        PaymentProperties mockPaymentProperties = new PaymentProperties(
+            new BigDecimal("1.3"),
+            new Stripe("test-stripe-secret-key")
+        );
+
+        calculator = new RentalFinePaymentCalculator(mockPaymentProperties);
     }
 
     @Test
     @DisplayName("""
         getSupportedType method always should
-        return PaymentType.PAYMENT
+        return PaymentType.FINE
         """)
-    void getSupportedType_Always_ShouldReturnPaymentTypePayment() {
+    void getSupportedType_With_ShouldReturnPaymentTypeFine() {
         assertThat(calculator.getSupportedType())
-            .isSameAs(PaymentType.PAYMENT);
+            .isSameAs(PaymentType.FINE);
     }
 
     @ParameterizedTest
     @CsvSource({
         "0, 0",
-        "1, 7",
-        "39.99, 279.93",
-        "40, 280",
-        "55.5, 388.5"
+        "39.99, 155.961",
+        "50, 195",
+        "1, 3.9",
+        "77.77, 303.303"
     })
     @DisplayName("""
         calculate method in a valid case should
-        return calculated result
+        should return calculated result
         """)
-    void calculate_ValidCase_ShouldReturnCalculatedResult(String dailyFee, String expected) {
+    void calculate_ValidCase_ShouldShouldReturnCalculatedResult(String dailyFee, String expected) {
         // Given
         var source = new RentalPaymentCalculationSource(
             new BigDecimal(dailyFee),
             RENTAL_DATE,
             RETURN_DATE,
-            null
+            RETURN_DATE.plusDays(3)
         );
 
         // When
@@ -72,10 +74,10 @@ public class RentalRegularPaymentCalculatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-10", "-1", "-1.4", "-0.7", "-0.32"})
+    @ValueSource(strings = {"-6", "-1", "-1.9", "-0.2", "-0.33", "-5.83721"})
     @DisplayName("""
-        calculate method when rented car's daily fee is negative
-        should throw DailyFeeNegativeValueException
+        calculate method when daily fee is negative should
+        throw DailyFeeNegativeValueException
         """)
     void calculate_WhenDailyFeeIsNegative_ShouldThrowDailyFeeNegativeValueException(
         String invalidDailyFee
@@ -85,7 +87,7 @@ public class RentalRegularPaymentCalculatorTest {
             new BigDecimal(invalidDailyFee),
             RENTAL_DATE,
             RETURN_DATE,
-            null
+            RETURN_DATE.plusDays(3)
         );
 
         // When & Then
@@ -97,46 +99,47 @@ public class RentalRegularPaymentCalculatorTest {
 
     @Test
     @DisplayName("""
-        calculate method when rental is returned should
-        throw RentalReturnedException
+        calculate method when rental is not returned yet should
+        throw RentalNotReturnedException
         """)
-    void calculate_WhenRentalIsReturned_ShouldThrowRentalReturnedException() {
+    void calculate_WhenRentalIsNotReturned_ShouldThrowRentalNotReturnedException() {
         // Given
         var source = new RentalPaymentCalculationSource(
             new BigDecimal("39.99"),
             RENTAL_DATE,
             RETURN_DATE,
-            RETURN_DATE
+            null
         );
 
         // When & Then
         assertThatThrownBy(() -> calculator.calculate(source))
-            .isExactlyInstanceOf(RentalReturnedException.class)
-            .hasMessage("Cannot create rental payment for returned car");
+            .isExactlyInstanceOf(RentalNotReturnedException.class)
+            .hasMessage("Cannot create fine payment before rental is returned");
 
     }
 
     @ParameterizedTest
-    @ValueSource(longs = {0, 1, 3})
+    @ValueSource(longs = {0, 2, 5})
     @DisplayName("""
-        calculate method when rental duration is not positive
-        should throw RentalDurationInvalidException
+        calculate method when overdue days amount is not positive should
+        throw RentalNotOverdueException
         """)
-    void calculate_WhenRentalDurationIsNotPositive_ShouldThrowRentalDurationInvalidException(
+    void calculate_WhenOverdueDaysAmoundIsNotPositive_ShouldThrowRentalNotOverdueException(
             long duration
     ) {
         // Given
         var source = new RentalPaymentCalculationSource(
             new BigDecimal("39.99"),
             RENTAL_DATE,
-            RENTAL_DATE.minusDays(duration),
-            null
+            RETURN_DATE,
+            RETURN_DATE.minusDays(duration)
         );
 
         // When & Then
         assertThatThrownBy(() -> calculator.calculate(source))
-            .isExactlyInstanceOf(RentalDurationInvalidException.class)
-            .hasMessage("Rental duration must be positive");
+            .isExactlyInstanceOf(RentalNotOverdueException.class)
+            .hasMessage("Rental is not overdue");
+
     }
 
 }

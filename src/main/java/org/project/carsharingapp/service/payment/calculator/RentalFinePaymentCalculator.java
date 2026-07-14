@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
+import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
 import org.project.carsharingapp.exception.RentalNotOverdueException;
 import org.project.carsharingapp.exception.RentalNotReturnedException;
 import org.project.carsharingapp.model.payment.PaymentType;
@@ -23,6 +24,11 @@ public class RentalFinePaymentCalculator implements RentalPaymentCalculator {
 
     @Override
     public BigDecimal calculate(RentalPaymentCalculationSource source) {
+        if (source.dailyFee().doubleValue() < 0) {
+            throw new DailyFeeNegativeValueException(
+                "Daily fee must be positive or zero");
+        }
+
         if (source.actualReturnDate() == null) {
             throw new RentalNotReturnedException(
                 "Cannot create fine payment before rental is returned"
