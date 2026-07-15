@@ -82,37 +82,9 @@ public class RentalPaymentService
     public RentalPaymentResponseDto createPaymentSession(RentalPaymentRequestDto requestDto) {
         User currentUser = SecurityUtil.getAuthenticatedUser();
 
-        PreparedPayment preparedPayment = transactionTemplate.execute(status -> {
-            Rental rental = rentalRepository.findByIdWithCar(requestDto.rentalId()).orElseThrow(
-                    () -> new EntityNotFoundException(
-                        "Cannot find a rental with id: " + requestDto.rentalId())
-            );
-
-            if (currentUser.getRole() == Role.CUSTOMER
-                    && !rental.getUser().getId().equals(currentUser.getId())) {
-                throw new AccessDeniedException("You cannot create payment for this rental");
-            }
-
-            PaymentType paymentType = requestDto.paymentType();
-
-            var calculationSource = new RentalPaymentCalculationSource(
-                    rental.getCar().getDailyFee(),
-                    rental.getRentalDate(),
-                    rental.getReturnDate(),
-                    rental.getActualReturnDate()
-            );
-
-            BigDecimal amount = calculatorResolver
-                    .resolve(paymentType)
-                    .calculate(calculationSource);
-
-            return new PreparedPayment(
-                    rental.getId(),
-                    paymentType,
-                    amount,
-                    buildProductName(rental, paymentType)
-            );
-        });
+        PreparedPayment preparedPayment = transactionTemplate.execute(status ->
+                preparePayment(requestDto, currentUser)
+        );
 
         PaymentSession paymentSession = paymentGateway.createSession(
             new PaymentSessionRequest(
@@ -142,22 +114,7 @@ public class RentalPaymentService
                 return paymentMapper.toDto(payment);
             });
         } catch (RuntimeException persistenceException) {
-            try {
-                paymentGateway.expireSession(paymentSession.id());
-                log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
-                        paymentSession.id(),
-                        persistenceException
-                );
-
-            } catch (RuntimeException expirationException) {
-                log.error(
-                        "Failed to expire orphan Stripe session: sessionId={}. "
-                            + "Original persistence error: {}",
-                        paymentSession.id(),
-                        persistenceException.getMessage(),
-                        expirationException
-                );
-            }
+            expirePaymentSession(paymentSession.id(), persistenceException);
             throw persistenceException;
         }
 
@@ -196,11 +153,11 @@ public class RentalPaymentService
 
             payment.setStatus(PaymentStatus.PAID);
 
-            eventPublisher.publishEvent(new NotificationRequestedEvent(
+            publishNotificationRequestedEvent(
                     MessageBuilder.buildRentalPaymentCompletedMessage(
                         paymentMapper.toMessageDto(payment)
                     )
-            ));
+            );
 
             return paymentMapper.toDto(payment);
         });
@@ -227,6 +184,63 @@ public class RentalPaymentService
 
         return StringUtils.capitalize(paymentType.name().toLowerCase())
                 + " for " + car.getBrand() + " " + car.getModel();
+    }
+
+    private PreparedPayment preparePayment(RentalPaymentRequestDto requestDto, User user) {
+        Rental rental = rentalRepository.findByIdWithCar(requestDto.rentalId()).orElseThrow(
+                () -> new EntityNotFoundException(
+                    "Cannot find a rental with id: " + requestDto.rentalId())
+        );
+
+        if (user.getRole() == Role.CUSTOMER
+                && !rental.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You cannot create payment for this rental");
+        }
+
+        PaymentType paymentType = requestDto.paymentType();
+
+        var calculationSource = new RentalPaymentCalculationSource(
+                rental.getCar().getDailyFee(),
+                rental.getRentalDate(),
+                rental.getReturnDate(),
+                rental.getActualReturnDate()
+        );
+
+        BigDecimal amount = calculatorResolver
+                .resolve(paymentType)
+                .calculate(calculationSource);
+
+        return new PreparedPayment(
+            rental.getId(),
+            paymentType,
+            amount,
+            buildProductName(rental, paymentType)
+        );
+    }
+
+    private void expirePaymentSession(String sessionId, RuntimeException persistenceException) {
+        try {
+            paymentGateway.expireSession(sessionId);
+            log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
+                    sessionId,
+                    persistenceException
+            );
+
+        } catch (RuntimeException expirationException) {
+            log.error(
+                    "Failed to expire orphan Stripe session: sessionId={}. "
+                        + "Original persistence error: {}",
+                    sessionId,
+                    persistenceException.getMessage(),
+                    expirationException
+            );
+        }
+    }
+
+    private void publishNotificationRequestedEvent(String message) {
+        eventPublisher.publishEvent(
+            new NotificationRequestedEvent(message)
+        );
     }
 
     private record PreparedPayment(
