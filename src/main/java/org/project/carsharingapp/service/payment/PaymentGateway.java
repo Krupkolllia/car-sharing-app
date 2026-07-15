@@ -8,6 +8,8 @@ public interface PaymentGateway {
 
     PaymentSession createSession(PaymentSessionRequest request);
 
+    void expireSession(String sessionId);
+
     PaymentSessionStatus getStatus(String sessionId);
 
 }
