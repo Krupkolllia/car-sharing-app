@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MvcResult;
 
-public class AuthenticationControllerTest extends AbstractControllerTest {
+class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)

@@ -17,7 +17,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-public class CarRepositoryTest {
+class CarRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;

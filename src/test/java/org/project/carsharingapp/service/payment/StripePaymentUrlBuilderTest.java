@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.project.carsharingapp.properties.AppProperties;
 
-public class StripePaymentUrlBuilderTest {
+class StripePaymentUrlBuilderTest {
 
     private static final String SUCCESS_PATH = "/payments/success";
     private static final String CANCEL_PATH = "/payments/cancel";

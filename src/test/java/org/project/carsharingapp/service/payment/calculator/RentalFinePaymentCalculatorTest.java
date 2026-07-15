@@ -20,7 +20,7 @@ import org.project.carsharingapp.model.payment.PaymentType;
 import org.project.carsharingapp.properties.PaymentProperties;
 import org.project.carsharingapp.properties.PaymentProperties.Stripe;
 
-public class RentalFinePaymentCalculatorTest {
+class RentalFinePaymentCalculatorTest {
 
     private static final LocalDate RENTAL_DATE = TestClockConfig.FIXED_DATE;
 

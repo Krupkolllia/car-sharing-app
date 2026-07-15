@@ -59,7 +59,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class RentalServiceTest {
+class RentalServiceTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;

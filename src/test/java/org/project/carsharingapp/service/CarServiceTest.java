@@ -35,7 +35,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class CarServiceTest {
+class CarServiceTest {
 
     @Mock
     private CarRepository carRepository;

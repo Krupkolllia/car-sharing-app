@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-public class TelegramNotificationServiceTest {
+class TelegramNotificationServiceTest {
 
     private static final String API_URL = "https://api.telegram.org";
 

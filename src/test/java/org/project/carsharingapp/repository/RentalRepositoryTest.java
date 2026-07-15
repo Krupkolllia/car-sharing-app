@@ -25,7 +25,7 @@ import org.springframework.test.context.jdbc.Sql;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import(TestClockConfig.class)
-public class RentalRepositoryTest {
+class RentalRepositoryTest {
 
     @Autowired
     private RentalRepository rentalRepository;

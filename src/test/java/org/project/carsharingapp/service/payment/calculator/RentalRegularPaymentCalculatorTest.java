@@ -18,7 +18,7 @@ import org.project.carsharingapp.exception.RentalDurationInvalidException;
 import org.project.carsharingapp.exception.RentalReturnedException;
 import org.project.carsharingapp.model.payment.PaymentType;
 
-public class RentalRegularPaymentCalculatorTest {
+class RentalRegularPaymentCalculatorTest {
 
     private static final LocalDate RENTAL_DATE = TestClockConfig.FIXED_DATE;
 

@@ -11,7 +11,7 @@ import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.json.JsonMapper;
 
 @SpringBootTest
-public class AbstractControllerTest {
+class AbstractControllerTest {
 
     protected static MockMvc mockMvc;
 

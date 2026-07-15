@@ -45,7 +45,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Import(TestClockConfig.class)
-public class RentalControllerTest extends AbstractControllerTest {
+class RentalControllerTest extends AbstractControllerTest {
 
     @Autowired
     private RentalMapper rentalMapper;
