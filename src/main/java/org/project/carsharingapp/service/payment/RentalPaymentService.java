@@ -167,7 +167,7 @@ public class RentalPaymentService
         return paymentMapper.toDto(payment);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean hasUnpaidPayment(Long userId) {
         return paymentRepository
             .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
