@@ -2,16 +2,16 @@ package org.project.carsharingapp.service.payment.calculator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.project.carsharingapp.service.payment.calculator.RentalRegularPaymentCalculatorTest.RENTAL_DATE;
-import static org.project.carsharingapp.service.payment.calculator.RentalRegularPaymentCalculatorTest.RETURN_DATE;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.project.carsharingapp.config.TestClockConfig;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
 import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
 import org.project.carsharingapp.exception.RentalNotOverdueException;
@@ -22,16 +22,21 @@ import org.project.carsharingapp.properties.PaymentProperties.Stripe;
 
 public class RentalFinePaymentCalculatorTest {
 
+    private static final LocalDate RENTAL_DATE = TestClockConfig.FIXED_DATE;
+
+    private static final LocalDate RETURN_DATE =
+        TestClockConfig.FIXED_DATE.plusDays(7);
+
     private RentalPaymentCalculator calculator;
 
     @BeforeEach
     void setUp() {
-        PaymentProperties mockPaymentProperties = new PaymentProperties(
+        PaymentProperties paymentProperties = new PaymentProperties(
             new BigDecimal("1.3"),
             new Stripe("test-stripe-secret-key")
         );
 
-        calculator = new RentalFinePaymentCalculator(mockPaymentProperties);
+        calculator = new RentalFinePaymentCalculator(paymentProperties);
     }
 
     @Test
@@ -39,7 +44,7 @@ public class RentalFinePaymentCalculatorTest {
         getSupportedType method always should
         return PaymentType.FINE
         """)
-    void getSupportedType_With_ShouldReturnPaymentTypeFine() {
+    void getSupportedType_Always_ShouldReturnPaymentTypeFine() {
         assertThat(calculator.getSupportedType())
             .isSameAs(PaymentType.FINE);
     }
@@ -54,9 +59,9 @@ public class RentalFinePaymentCalculatorTest {
     })
     @DisplayName("""
         calculate method in a valid case should
-        should return calculated result
+        return calculated result
         """)
-    void calculate_ValidCase_ShouldShouldReturnCalculatedResult(String dailyFee, String expected) {
+    void calculate_ValidCase_ShouldReturnCalculatedResult(String dailyFee, String expected) {
         // Given
         var source = new RentalPaymentCalculationSource(
             new BigDecimal(dailyFee),
@@ -124,15 +129,15 @@ public class RentalFinePaymentCalculatorTest {
         calculate method when overdue days amount is not positive should
         throw RentalNotOverdueException
         """)
-    void calculate_WhenOverdueDaysAmoundIsNotPositive_ShouldThrowRentalNotOverdueException(
-            long duration
+    void calculate_WhenRentalIsNotOverdue_ShouldThrowRentalNotOverdueException(
+            long daysBeforeDueDate
     ) {
         // Given
         var source = new RentalPaymentCalculationSource(
             new BigDecimal("39.99"),
             RENTAL_DATE,
             RETURN_DATE,
-            RETURN_DATE.minusDays(duration)
+            RETURN_DATE.minusDays(daysBeforeDueDate)
         );
 
         // When & Then
