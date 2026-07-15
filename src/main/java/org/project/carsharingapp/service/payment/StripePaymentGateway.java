@@ -6,6 +6,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams.Mode;
+import com.stripe.param.checkout.SessionExpireParams;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.project.carsharingapp.dto.payment.PaymentSession;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
 import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
+import org.project.carsharingapp.exception.StripeSessionExpirationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
 import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
@@ -79,6 +81,25 @@ public class StripePaymentGateway implements PaymentGateway {
         } catch (StripeException e) {
             log.error("Failed to create Stripe session", e);
             throw new StripeSessionCreationException("Cannot create Stripe session", e);
+        }
+    }
+
+    @Override
+    public void expireSession(String sessionId) {
+        try {
+            SessionExpireParams params = SessionExpireParams.builder()
+                    .build();
+
+            stripeClient
+                    .v1()
+                    .checkout()
+                    .sessions()
+                    .expire(sessionId, params);
+        } catch (StripeException e) {
+            throw new StripeSessionExpirationException(
+                "Failed to expire Stripe session with id: " + sessionId,
+                e
+            );
         }
     }
 
