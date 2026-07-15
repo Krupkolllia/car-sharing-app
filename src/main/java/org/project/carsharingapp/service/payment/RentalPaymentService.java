@@ -34,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
@@ -51,6 +52,8 @@ public class RentalPaymentService
     private static final Long QUANTITY = 1L;
 
     private final ApplicationEventPublisher eventPublisher;
+
+    private final TransactionTemplate transactionTemplate;
 
     private final PaymentRepository paymentRepository;
 
@@ -76,95 +79,141 @@ public class RentalPaymentService
     }
 
     @Override
-    @Transactional
     public RentalPaymentResponseDto createPaymentSession(RentalPaymentRequestDto requestDto) {
-        Rental rental = rentalRepository.findByIdWithCar(requestDto.rentalId()).orElseThrow(
-                () -> new EntityNotFoundException(
-                    "Cannot find a rental with id: " + requestDto.rentalId())
-        );
-
         User currentUser = SecurityUtil.getAuthenticatedUser();
 
-        if (currentUser.getRole() == Role.CUSTOMER
-                && !rental.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("You cannot create payment for this rental");
-        }
+        PreparedPayment preparedPayment = transactionTemplate.execute(status -> {
+            Rental rental = rentalRepository.findByIdWithCar(requestDto.rentalId()).orElseThrow(
+                    () -> new EntityNotFoundException(
+                        "Cannot find a rental with id: " + requestDto.rentalId())
+            );
 
-        PaymentType paymentType = requestDto.paymentType();
+            if (currentUser.getRole() == Role.CUSTOMER
+                    && !rental.getUser().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("You cannot create payment for this rental");
+            }
 
-        var calculationSource = new RentalPaymentCalculationSource(
-                rental.getCar().getDailyFee(),
-                rental.getRentalDate(),
-                rental.getReturnDate(),
-                rental.getActualReturnDate()
-        );
+            PaymentType paymentType = requestDto.paymentType();
 
-        BigDecimal amount = calculatorResolver
-                .resolve(paymentType)
-                .calculate(calculationSource);
+            var calculationSource = new RentalPaymentCalculationSource(
+                    rental.getCar().getDailyFee(),
+                    rental.getRentalDate(),
+                    rental.getReturnDate(),
+                    rental.getActualReturnDate()
+            );
+
+            BigDecimal amount = calculatorResolver
+                    .resolve(paymentType)
+                    .calculate(calculationSource);
+
+            return new PreparedPayment(
+                    rental.getId(),
+                    paymentType,
+                    amount,
+                    buildProductName(rental, paymentType)
+            );
+        });
 
         PaymentSession paymentSession = paymentGateway.createSession(
             new PaymentSessionRequest(
-                amount,
+                preparedPayment.amount(),
                 CURRENCY,
-                buildProductName(rental, paymentType),
+                preparedPayment.productName(),
                 QUANTITY
             )
         );
 
-        Payment payment = new Payment()
-                .setRental(rental)
-                .setType(paymentType)
-                .setStatus(PaymentStatus.PENDING)
-                .setTotal(amount)
-                .setSessionId(paymentSession.id())
-                .setSessionUrl(paymentSession.url());
+        RentalPaymentResponseDto responseDto;
 
-        log.info(
-                "Payment created: paymentId={}, userId={}, rentalId={}, type={}, total={}",
-                payment.getId(),
+        try {
+            responseDto = transactionTemplate.execute(status -> {
+                Rental rentalProxy = rentalRepository.getReferenceById(preparedPayment.rentalId());
+
+                Payment payment = new Payment()
+                        .setRental(rentalProxy)
+                        .setType(preparedPayment.paymentType())
+                        .setStatus(PaymentStatus.PENDING)
+                        .setTotal(preparedPayment.amount())
+                        .setSessionId(paymentSession.id())
+                        .setSessionUrl(paymentSession.url());
+
+                paymentRepository.save(payment);
+
+                return paymentMapper.toDto(payment);
+            });
+        } catch (RuntimeException persistenceException) {
+            try {
+                paymentGateway.expireSession(paymentSession.id());
+                log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
+                        paymentSession.id(),
+                        persistenceException
+                );
+
+            } catch (RuntimeException expirationException) {
+                log.error(
+                        "Failed to expire orphan Stripe session: sessionId={}. "
+                            + "Original persistence error: {}",
+                        paymentSession.id(),
+                        persistenceException.getMessage(),
+                        expirationException
+                );
+            }
+            throw persistenceException;
+        }
+
+        log.info("Payment created: sessionId={}, productName={},"
+                + " userId={}, rentalId={}, type={}, total={}",
+                paymentSession.id(),
+                preparedPayment.productName(),
                 currentUser.getId(),
-                rental.getId(),
-                payment.getType(),
-                payment.getTotal()
+                preparedPayment.rentalId(),
+                preparedPayment.paymentType(),
+                preparedPayment.amount()
         );
 
-        return paymentMapper.toDto(paymentRepository.save(payment));
+        return responseDto;
+
     }
 
     @Override
-    @Transactional
     public RentalPaymentResponseDto handleSuccessPayment(String sessionId) {
-        Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
-                () -> new EntityNotFoundException(
-                    "Cannot find payment for Stripe session: " + sessionId)
-        );
-
-        if (payment.getStatus() == PaymentStatus.PAID) {
-            return paymentMapper.toDto(payment);
-        }
-
         PaymentSessionStatus sessionStatus = paymentGateway.getStatus(sessionId);
-        if (paymentGateway.getStatus(sessionId) != PaymentSessionStatus.PAID) {
-            throw new PaymentProcessingException(
-                "Payment was not paid. Session status: " + sessionStatus);
-        }
 
-        payment.setStatus(PaymentStatus.PAID);
+        RentalPaymentResponseDto responseDto = transactionTemplate.execute(status -> {
+            Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
+                    () -> new EntityNotFoundException(
+                        "Cannot find payment for Stripe session: " + sessionId)
+            );
 
-        eventPublisher.publishEvent(new NotificationRequestedEvent(
-                MessageBuilder.buildRentalPaymentCompletedMessage(
-                    paymentMapper.toMessageDto(payment)
-                )
-        ));
+            if (payment.getStatus() == PaymentStatus.PAID) {
+                return paymentMapper.toDto(payment);
+            }
+
+            if (sessionStatus != PaymentSessionStatus.PAID) {
+                throw new PaymentProcessingException(
+                    "Payment was not paid. Session status: " + sessionStatus);
+            }
+
+            payment.setStatus(PaymentStatus.PAID);
+
+            eventPublisher.publishEvent(new NotificationRequestedEvent(
+                    MessageBuilder.buildRentalPaymentCompletedMessage(
+                        paymentMapper.toMessageDto(payment)
+                    )
+            ));
+
+            return paymentMapper.toDto(payment);
+        });
 
         log.info(
-                "Payment completed: paymentId={}, sessionId={}",
-                payment.getId(),
-                sessionId
+                "Payment completed: paymentId={}, sessionId={}, paymentStatus={}",
+                responseDto.id(),
+                sessionId,
+                responseDto.status()
         );
 
-        return paymentMapper.toDto(payment);
+        return responseDto;
+
     }
 
     @Transactional(readOnly = true)
@@ -179,5 +228,12 @@ public class RentalPaymentService
         return StringUtils.capitalize(paymentType.name().toLowerCase())
                 + " for " + car.getBrand() + " " + car.getModel();
     }
+
+    private record PreparedPayment(
+            Long rentalId,
+            PaymentType paymentType,
+            BigDecimal amount,
+            String productName
+    ) {}
 
 }
