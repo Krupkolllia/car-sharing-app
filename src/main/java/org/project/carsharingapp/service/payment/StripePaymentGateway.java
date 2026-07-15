@@ -1,6 +1,5 @@
 package org.project.carsharingapp.service.payment;
 
-import com.stripe.Stripe;
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -17,7 +16,6 @@ import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
 import org.project.carsharingapp.exception.StripeSessionExpirationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
-import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,12 +33,8 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private final StripePaymentUrlBuilder urlBuilder;
 
-    private final PaymentProperties paymentProperties;
-
     @Override
     public PaymentSession createSession(PaymentSessionRequest request) {
-        Stripe.apiKey = paymentProperties.stripe().secretKey();
-
         long unitAmount = request.amount()
                 .multiply(CENTS_IN_DOLLAR)
                 .setScale(0, RoundingMode.HALF_UP)
