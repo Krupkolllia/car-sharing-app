@@ -9,6 +9,7 @@ import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
@@ -243,6 +244,13 @@ public class TestDataHelper {
         );
     }
 
-
+    public static PaymentSessionRequest createPaymentSessionRequest() {
+        return new PaymentSessionRequest(
+            new BigDecimal("123.456"),
+            "usd",
+            "test payment",
+            1L
+        );
+    }
 
 }

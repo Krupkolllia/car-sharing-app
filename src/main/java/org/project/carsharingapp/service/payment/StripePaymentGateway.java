@@ -27,7 +27,7 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private static final String STRIPE_EXPIRED_STATUS = "expired";
 
-    private static final BigDecimal CENTS_IN_DOLLAR = BigDecimal.valueOf(100);
+    private static final BigDecimal CENTS_IN_DOLLAR = new BigDecimal("100");
 
     private final StripeClient stripeClient;
 
@@ -90,6 +90,7 @@ public class StripePaymentGateway implements PaymentGateway {
                     .sessions()
                     .expire(sessionId, params);
         } catch (StripeException e) {
+            log.error("Failed to expire Stripe session", e);
             throw new StripeSessionExpirationException(
                 "Failed to expire Stripe session with id: " + sessionId,
                 e
@@ -117,7 +118,10 @@ public class StripePaymentGateway implements PaymentGateway {
             return PaymentSessionStatus.UNPAID;
         } catch (StripeException e) {
             log.error("Failed to retrieve Stripe session", e);
-            throw new StripeSessionRetrievingException("Cannot retrieve Stripe session", e);
+            throw new StripeSessionRetrievingException(
+                "Cannot retrieve Stripe session with id: " + sessionId,
+                e
+            );
         }
     }
 }
