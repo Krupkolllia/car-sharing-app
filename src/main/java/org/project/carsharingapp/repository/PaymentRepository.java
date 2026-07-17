@@ -28,6 +28,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findAllByStatus(PaymentStatus status);
 
+    Optional<Payment> findByIdAndRentalUserId(Long id, Long userId);
+
     boolean existsByRentalUserIdAndStatusNotIn(
             Long userId, Collection<PaymentStatus> statuses);
 
