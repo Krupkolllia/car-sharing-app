@@ -1,7 +1,9 @@
 package org.project.carsharingapp.service.payment;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -177,6 +179,37 @@ public class RentalPaymentService
     public boolean hasUnpaidPayment(Long userId) {
         return paymentRepository
             .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
+    }
+
+    @Override
+    public void markExpiredPayments() {
+        List<Payment> expiredPayments = new ArrayList<>();
+        List<Payment> pendingPayments = paymentRepository
+                .findAllByStatus(PaymentStatus.PENDING);
+
+        for (Payment payment : pendingPayments) {
+            try {
+                PaymentSessionStatus paymentSessionStatus = paymentGateway
+                        .getStatus(payment.getSessionId());
+
+                if (paymentSessionStatus == PaymentSessionStatus.EXPIRED) {
+                    payment.setStatus(PaymentStatus.EXPIRED);
+                    expiredPayments.add(payment);
+                }
+            } catch (RuntimeException e) {
+                log.warn(
+                        "Failed to retrieve payment session. paymentId={}, sessionId={}",
+                        payment.getId(),
+                        payment.getSessionId(),
+                        e
+                );
+            }
+
+            if (!expiredPayments.isEmpty()) {
+                paymentRepository.saveAll(expiredPayments);
+            }
+
+        }
     }
 
     private String buildProductName(Rental rental, PaymentType paymentType) {
