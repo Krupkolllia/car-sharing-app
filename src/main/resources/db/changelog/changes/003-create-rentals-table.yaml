@@ -42,6 +42,6 @@ databaseChangeLog:
                     references: users(id)
 
         - sql:
-            sql: ALTER TABLE rentals ADD CONSTRAINT chk_return_date_after_rental_date CHECK (return_date >= rental_date);
+            sql: ALTER TABLE rentals ADD CONSTRAINT chk_return_date_after_rental_date CHECK (return_date > rental_date);
         - sql:
             sql: ALTER TABLE rentals ADD CONSTRAINT chk_actual_return_date_after_rental_date CHECK (actual_return_date IS NULL OR actual_return_date >= rental_date);
