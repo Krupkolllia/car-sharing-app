@@ -22,8 +22,12 @@ import org.springframework.web.client.RestClient;
 public class TelegramNotificationServiceTest {
 
     private static final String API_URL = "https://api.telegram.org";
+
     private static final String BOT_TOKEN = "test-token";
+
     private static final String CHAT_ID = "1234567890";
+
+    private static final boolean NOTIFICATIONS_ENABLED = false;
 
     private MockRestServiceServer mockServer;
 
@@ -41,7 +45,8 @@ public class TelegramNotificationServiceTest {
         TelegramProperties properties = new TelegramProperties(
             BOT_TOKEN,
             CHAT_ID,
-            API_URL
+            API_URL,
+            NOTIFICATIONS_ENABLED
         );
 
         service = new TelegramNotificationService(properties, restClient);
