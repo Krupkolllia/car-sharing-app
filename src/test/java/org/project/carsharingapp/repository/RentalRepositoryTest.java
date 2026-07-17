@@ -223,6 +223,8 @@ class RentalRepositoryTest {
         assertThat(actual).isEmpty();
     }
 
+    // TODO: findByIdForUpdate method tests
+
     @Test
     @Sql(scripts = ADD_RENTAL_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""

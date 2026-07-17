@@ -144,6 +144,10 @@ class PaymentRepositoryTest {
         assertThat(actual).isEmpty();
 
     }
+
+    // TODO: findAllByStatus method tests
+
+    // TODO: findByIdAndRentalUserId method tests
     
     @Test
     @Sql(scripts = {
