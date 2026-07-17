@@ -42,10 +42,10 @@ public class PaymentExpirationService {
                 );
             }
 
-            if (!expiredPayments.isEmpty()) {
-                paymentRepository.saveAll(expiredPayments);
-            }
+        }
 
+        if (!expiredPayments.isEmpty()) {
+            paymentRepository.saveAll(expiredPayments);
         }
     }
 
