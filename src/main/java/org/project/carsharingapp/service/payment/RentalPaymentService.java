@@ -45,7 +45,8 @@ public class RentalPaymentService
 
     private static final Set<PaymentStatus> BLOCKING_STATUSES =
             EnumSet.of(
-                PaymentStatus.PENDING
+                PaymentStatus.PENDING,
+                PaymentStatus.EXPIRED
             );
 
     private static final String CURRENCY = "usd";
