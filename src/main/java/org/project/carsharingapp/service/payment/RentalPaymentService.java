@@ -13,6 +13,7 @@ import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSour
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentRequestDto;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
 import org.project.carsharingapp.exception.EntityNotFoundException;
+import org.project.carsharingapp.exception.PaymentNotExpiredException;
 import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.mapper.RentalPaymentMapper;
 import org.project.carsharingapp.model.car.Car;
@@ -115,8 +116,8 @@ public class RentalPaymentService
             });
         } catch (RuntimeException persistenceException) {
             log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
-                paymentSession.id(),
-                persistenceException
+                    paymentSession.id(),
+                    persistenceException
             );
 
             expirePaymentSession(paymentSession.id(), persistenceException);
@@ -177,6 +178,63 @@ public class RentalPaymentService
 
         return responseDto;
 
+    }
+
+    @Override
+    public RentalPaymentResponseDto renewSession(Long paymentId) {
+        User currentUser = SecurityUtil.getAuthenticatedUser();
+
+        Payment payment = paymentRepository
+                .findByIdAndRentalUserId(paymentId, currentUser.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                    "Cannot find payment with id: " + paymentId
+                ));
+
+        if (payment.getStatus() != PaymentStatus.EXPIRED) {
+            throw new PaymentNotExpiredException(
+                "Only expired payment session can be renewed. Current status: "
+                    + payment.getStatus()
+            );
+        }
+
+        PaymentSessionRequest paymentSessionRequest = new PaymentSessionRequest(
+                payment.getTotal(),
+                CURRENCY,
+                buildProductName(payment.getRental(), payment.getType()),
+                QUANTITY
+        );
+
+        PaymentSession newSession = paymentGateway.createSession(paymentSessionRequest);
+
+        try {
+            RentalPaymentResponseDto responseDto = transactionTemplate.execute(status -> {
+                payment
+                        .setSessionId(newSession.id())
+                        .setSessionUrl(newSession.url())
+                        .setStatus(PaymentStatus.PENDING);
+
+                paymentRepository.save(payment);
+
+                return paymentMapper.toDto(payment);
+            });
+
+            log.info(
+                    "Payment session renewed: paymentId={}, sessionId={}",
+                    paymentId,
+                    newSession.id()
+            );
+
+            return responseDto;
+        } catch (RuntimeException persistenceException) {
+            log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
+                    newSession.id(),
+                    persistenceException
+            );
+
+            expirePaymentSession(newSession.id(), persistenceException);
+
+            throw persistenceException;
+        }
     }
 
     @Transactional(readOnly = true)
