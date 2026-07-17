@@ -13,4 +13,6 @@ public interface PaymentService<S extends PaymentRequestDto, R extends PaymentRe
 
     R handleSuccessPayment(String sessionId);
 
+    R renewSession(Long paymentId);
+
 }

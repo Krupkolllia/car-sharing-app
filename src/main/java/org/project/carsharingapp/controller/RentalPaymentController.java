@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.carsharingapp.dto.payment.PaymentCallbackResponseDto;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentRequestDto;
 import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
+import org.project.carsharingapp.security.annotation.CustomerOnly;
 import org.project.carsharingapp.security.annotation.ManagerOrCustomer;
 import org.project.carsharingapp.service.payment.RentalPaymentService;
 import org.springdoc.core.annotations.ParameterObject;
@@ -61,6 +62,14 @@ public class RentalPaymentController {
             "Payment was not completed."
                 + " You can retry using the existing payment link before it expires."
         );
+    }
+
+    @Operation(summary = "Renew expired payment session")
+    @CustomerOnly
+    @PostMapping("/renew")
+    public RentalPaymentResponseDto renewPaymentSession(
+            @RequestParam("paymentId") Long paymentId) {
+        return rentalPaymentService.renewSession(paymentId);
     }
 
 }
