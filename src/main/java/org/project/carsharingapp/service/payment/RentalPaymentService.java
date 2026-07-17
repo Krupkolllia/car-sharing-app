@@ -1,9 +1,7 @@
 package org.project.carsharingapp.service.payment;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,7 +114,13 @@ public class RentalPaymentService
                 return paymentMapper.toDto(payment);
             });
         } catch (RuntimeException persistenceException) {
+            log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
+                paymentSession.id(),
+                persistenceException
+            );
+
             expirePaymentSession(paymentSession.id(), persistenceException);
+
             throw persistenceException;
         }
 
@@ -181,37 +185,6 @@ public class RentalPaymentService
             .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
     }
 
-    @Override
-    public void markExpiredPayments() {
-        List<Payment> expiredPayments = new ArrayList<>();
-        List<Payment> pendingPayments = paymentRepository
-                .findAllByStatus(PaymentStatus.PENDING);
-
-        for (Payment payment : pendingPayments) {
-            try {
-                PaymentSessionStatus paymentSessionStatus = paymentGateway
-                        .getStatus(payment.getSessionId());
-
-                if (paymentSessionStatus == PaymentSessionStatus.EXPIRED) {
-                    payment.setStatus(PaymentStatus.EXPIRED);
-                    expiredPayments.add(payment);
-                }
-            } catch (RuntimeException e) {
-                log.warn(
-                        "Failed to retrieve payment session. paymentId={}, sessionId={}",
-                        payment.getId(),
-                        payment.getSessionId(),
-                        e
-                );
-            }
-
-            if (!expiredPayments.isEmpty()) {
-                paymentRepository.saveAll(expiredPayments);
-            }
-
-        }
-    }
-
     private String buildProductName(Rental rental, PaymentType paymentType) {
         Car car = rental.getCar();
 
@@ -254,11 +227,6 @@ public class RentalPaymentService
     private void expirePaymentSession(String sessionId, RuntimeException persistenceException) {
         try {
             paymentGateway.expireSession(sessionId);
-            log.error("Failed to persist payment. Stripe session was expired: sessionId={}",
-                    sessionId,
-                    persistenceException
-            );
-
         } catch (RuntimeException expirationException) {
             log.error(
                     "Failed to expire orphan Stripe session: sessionId={}. "

@@ -13,6 +13,4 @@ public interface PaymentService<S extends PaymentRequestDto, R extends PaymentRe
 
     R handleSuccessPayment(String sessionId);
 
-    void markExpiredPayments();
-
 }
