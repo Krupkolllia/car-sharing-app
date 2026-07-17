@@ -8,16 +8,16 @@ databaseChangeLog:
             columns:
               - column:
                   name: email
-                  value: "admin@mail.com"
+                  value: "manager@mail.com"
               - column:
                   name: password
-                  value: "$2a$12$6zFBs11tHsVXhFakFybcIeMSSuZulwLvo0EDjA1JdhZRgmJT3FLBi"
+                  value: "$2a$12$zFXC0L8O4ovVQlIp45FjLuYZZ9rbdbzJyQvJEIEZJkdqke6/R/IIS"
               - column:
                   name: first_name
-                  value: "Admin"
+                  value: "Manager"
               - column:
                   name: last_name
-                  value: "Admin"
+                  value: "Manager"
               - column:
                   name: role
                   value: "MANAGER"
@@ -30,16 +30,16 @@ databaseChangeLog:
             columns:
               - column:
                   name: email
-                  value: "user@mail.com"
+                  value: "customer@mail.com"
               - column:
                   name: password
                   value: "$2a$12$HYf6Nk.d1Q7.rjSmbP4.e.C3GzSFVoLtRx273ih.mgwwRXYg/Jux2"
               - column:
                   name: first_name
-                  value: "User"
+                  value: "Customer"
               - column:
                   name: last_name
-                  value: "User"
+                  value: "Customer"
               - column:
                   name: role
                   value: "CUSTOMER"
