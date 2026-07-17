@@ -9,6 +9,7 @@ import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
+import org.project.carsharingapp.exception.PaymentNotExpiredException;
 import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
 import org.project.carsharingapp.exception.RentalDurationInvalidException;
@@ -35,7 +36,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         EmailAlreadyInUseException.class,
         NoAvailableCarsException.class,
         RentalAlreadyReturnedException.class,
-        UnpaidPaymentExistsException.class
+        UnpaidPaymentExistsException.class,
+        PaymentNotExpiredException.class,
+        PaymentProcessingException.class
     })
     public ResponseEntity<ExceptionResponse> handleConflict(
             RuntimeException e, HttpServletRequest request
@@ -48,9 +51,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
-        PaymentProcessingException.class,
         StripeSessionCreationException.class,
-        StripeSessionRetrievingException.class,
+        StripeSessionRetrievingException.class
     })
     public ResponseEntity<ExceptionResponse> handlePayment(
             RuntimeException e, HttpServletRequest request
