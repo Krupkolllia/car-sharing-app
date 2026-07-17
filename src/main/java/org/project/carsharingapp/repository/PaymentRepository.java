@@ -28,6 +28,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findAllByStatus(PaymentStatus status);
 
+    @EntityGraph(attributePaths = {
+        "rental",
+        "rental.car",
+        "rental.user"
+    })
     Optional<Payment> findByIdAndRentalUserId(Long id, Long userId);
 
     boolean existsByRentalUserIdAndStatusNotIn(
