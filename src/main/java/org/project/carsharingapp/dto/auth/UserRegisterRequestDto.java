@@ -2,14 +2,14 @@ package org.project.carsharingapp.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 public record UserRegisterRequestDto(
         @NotBlank
         @Email
         String email,
         @NotBlank
-        @Length(min = 8)
+        @Size(min = 8)
         String password,
         @NotBlank
         String firstName,

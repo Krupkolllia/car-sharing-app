@@ -42,6 +42,15 @@ databaseChangeLog:
                     references: users(id)
 
         - sql:
-            sql: ALTER TABLE rentals ADD CONSTRAINT chk_return_date_after_rental_date CHECK (return_date >= rental_date);
+            sql: ALTER TABLE rentals ADD CONSTRAINT chk_return_date_after_rental_date CHECK (return_date > rental_date);
         - sql:
             sql: ALTER TABLE rentals ADD CONSTRAINT chk_actual_return_date_after_rental_date CHECK (actual_return_date IS NULL OR actual_return_date >= rental_date);
+
+        - sql:
+            sql: CREATE INDEX idx_rentals_car_id ON rentals (car_id);
+
+        - sql:
+             sql: CREATE INDEX idx_rentals_active_return_date ON rentals (return_date) WHERE actual_return_date IS NULL;
+
+        - sql:
+            sql: CREATE INDEX idx_rentals_user_id ON rentals (user_id);

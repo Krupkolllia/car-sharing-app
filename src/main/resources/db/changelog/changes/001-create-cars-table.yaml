@@ -46,3 +46,6 @@ databaseChangeLog:
                     nullable: false
         - sql:
             sql: ALTER TABLE cars ADD CONSTRAINT chk_inventory_non_negative CHECK (inventory >= 0);
+
+        - sql:
+            sql: ALTER TABLE cars ADD CONSTRAINT chk_daily_fee_non_negative CHECK (daily_fee > 0);
