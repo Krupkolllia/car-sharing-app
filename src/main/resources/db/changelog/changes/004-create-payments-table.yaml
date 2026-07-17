@@ -51,7 +51,7 @@ databaseChangeLog:
            sql: ALTER TABLE payments ADD CONSTRAINT uq_payments_rental_type UNIQUE (rental_id, type);
 
         - sql:
-            sql: ALTER TABLE payments ADD CONSTRAINT chk_payments_status CHECK (status IN ('PENDING', 'PAID', 'EXPIRED', 'CANCELED'));
+            sql: ALTER TABLE payments ADD CONSTRAINT chk_payments_status CHECK (status IN ('PENDING', 'PAID', 'EXPIRED'));
 
         - sql:
             sql: ALTER TABLE payments ADD CONSTRAINT chk_payments_type CHECK (type IN ('PAYMENT', 'FINE'));
