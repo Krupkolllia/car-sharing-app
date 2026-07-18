@@ -145,9 +145,128 @@ class PaymentRepositoryTest {
 
     }
 
-    // TODO: findAllByStatus method tests
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findAllByStatus method with existing matching payments
+        should return List of Payments
+        """)
+    void findAllByStatus_WithMatchingPayments_ShouldReturnMatchingPayments() {
+        // Given
+        PaymentStatus status = PaymentStatus.PENDING;
+        List<Payment> expected = paymentRepository.findAll().stream()
+            .filter(payment -> payment.getStatus() == status)
+            .toList();
+        
+        // When
+        List<Payment> actual = paymentRepository.findAllByStatus(status);
 
-    // TODO: findByIdAndRentalUserId method tests
+        // Then
+        assertThat(actual)
+            .usingRecursiveFieldByFieldElementComparator()
+            .containsExactlyInAnyOrderElementsOf(expected);
+    
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findAllByStatus method with no matching payments
+        should return empty list
+        """)
+    void findAllByStatus_WithNoMatchingPayments_ShouldReturnEmptyList() {
+        // Given
+        PaymentStatus status = PaymentStatus.PAID;
+
+        List<Payment> payments = paymentRepository.findAll().stream()
+            .filter(payment -> payment.getStatus() == PaymentStatus.PAID)
+            .map(payment -> payment.setStatus(PaymentStatus.PENDING))
+            .toList();
+
+        paymentRepository.saveAllAndFlush(payments);
+
+        // When
+        List<Payment> actual = paymentRepository.findAllByStatus(status);
+
+        // Then
+        assertThat(paymentRepository.count()).isPositive();
+        assertThat(actual).isEmpty();
+
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findByIdAndRentalUserId method in a valid case should
+        return matching payment
+        """)
+    void findByIdAndRentalUserId_ValidCase_ShouldReturnMatchingPayment() {
+        // Given
+        Long id = 1L;
+
+        // When
+        Optional<Payment> actual = paymentRepository.findByIdAndRentalUserId(id, CUSTOMER_ID);
+
+        // Then
+        assertThat(actual)
+            .isPresent()
+            .get()
+            .extracting(Payment::getId)
+            .isEqualTo(id);
+
+        assertThat(actual.get().getRental().getUser().getId())
+            .isEqualTo(CUSTOMER_ID);
+
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findByIdAndRentalUserId method with id of non-existing payment should
+        return empty Optional of Payment
+        """)
+    void findByIdAndRentalUserId_WithInvalidPaymentId_ShouldReturnEmptyOptional() {
+        // Given
+        Long invalidPaymentId = 404L;
+
+        // When
+        Optional<Payment> actual = paymentRepository
+                .findByIdAndRentalUserId(invalidPaymentId, CUSTOMER_ID);
+
+        // Then
+        assertThat(actual).isEmpty();
+
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findByIdAndRentalUserId method with id of non-existing user should
+        return empty Optional of Payment
+        """)
+    void findByIdAndRentalUserId_WithInvalidUserId_ShouldReturnEmptyOptionalOfPayment() {
+        // Given
+        Long id = 1L;
+        Long invalidUserId = 404L;
+
+        // When
+        Optional<Payment> actual = paymentRepository
+                .findByIdAndRentalUserId(id, invalidUserId);
+
+        // Then
+        assertThat(actual).isEmpty();
+
+    }
     
     @Test
     @Sql(scripts = {
