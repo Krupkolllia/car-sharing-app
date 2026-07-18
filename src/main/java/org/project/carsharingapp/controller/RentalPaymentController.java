@@ -41,7 +41,7 @@ public class RentalPaymentController {
     }
 
     @Operation(summary = "Create payment session")
-    @ManagerOrCustomer
+    @CustomerOnly
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public RentalPaymentResponseDto createPaymentSession(

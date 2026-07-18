@@ -257,8 +257,7 @@ public class RentalPaymentService
                     "Cannot find a rental with id: " + requestDto.rentalId())
         );
 
-        if (user.getRole() == Role.CUSTOMER
-                && !rental.getUser().getId().equals(user.getId())) {
+        if (!rental.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("You cannot create payment for this rental");
         }
 
