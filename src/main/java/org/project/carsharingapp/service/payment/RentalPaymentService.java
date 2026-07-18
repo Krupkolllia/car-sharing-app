@@ -32,7 +32,6 @@ import org.project.carsharingapp.util.MessageBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -258,7 +257,8 @@ public class RentalPaymentService
         );
 
         if (!rental.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You cannot create payment for this rental");
+            throw new EntityNotFoundException(
+                "Cannot find a rental with id: " + requestDto.rentalId());
         }
 
         PaymentType paymentType = requestDto.paymentType();

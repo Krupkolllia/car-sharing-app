@@ -22,7 +22,6 @@ import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
 import org.project.carsharingapp.exception.UnsupportedPaymentTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -92,17 +91,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponse(
             HttpStatus.NOT_FOUND,
             e.getMessage(),
-            request.getRequestURI()
-        );
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ExceptionResponse> handleAccessDenied(
-            AccessDeniedException e, HttpServletRequest request
-    ) {
-        return buildResponse(
-            HttpStatus.FORBIDDEN,
-            "Access denied",
             request.getRequestURI()
         );
     }
