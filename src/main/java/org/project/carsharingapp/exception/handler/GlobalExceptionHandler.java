@@ -9,6 +9,7 @@ import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
+import org.project.carsharingapp.exception.PaymentGatewayException;
 import org.project.carsharingapp.exception.PaymentNotExpiredException;
 import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
@@ -50,6 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
+        PaymentGatewayException.class,
         StripeSessionCreationException.class,
         StripeSessionRetrievingException.class
     })
