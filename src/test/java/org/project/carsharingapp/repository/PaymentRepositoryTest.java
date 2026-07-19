@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_PAYMENT_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
+import static org.project.carsharingapp.util.TestDataHelper.PENDING_PAYMENT_SESSION_ID;
 import static org.project.carsharingapp.util.TestDataHelper.createPendingPayment;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -274,9 +275,9 @@ class PaymentRepositoryTest {
     }, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
         existsByRentalUserIdAndStatusIn method when
-        wanted payment exists should return boolean true
+        matching payment exists should return boolean true
         """)
-    void existsByRentalUserIdAndStatusIn_WhenPaymentExists_ShouldReturnThisPayment() {
+    void existsByRentalUserIdAndStatusIn_WhenMatchingPaymentExists_ShouldReturnThisPayment() {
         Long userId = createPendingPayment().getRental().getUser().getId();
         Collection<PaymentStatus> statuses = EnumSet.of(PaymentStatus.PENDING);
         
@@ -291,19 +292,52 @@ class PaymentRepositoryTest {
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
-        existsByRentalUserIdAndStatusIn method when wanted payment does not exists should
-        return boolean false
+        existsByRentalUserIdAndStatusIn method when
+        matching payment does not exist should return boolean false
         """)
-    void existsByRentalUserIdAndStatusIn_With_ShouldReturnBooleanFalse() {
+    void existsByRentalUserIdAndStatusIn_WhenMatchingPaymentDoesNotExist_ShouldReturnBooleanFalse() {
         // Given
         Long userId = createPendingPayment().getRental().getUser().getId();
         Collection<PaymentStatus> statuses = EnumSet.of(
                 PaymentStatus.PENDING,
-                PaymentStatus.PAID)
-            ;
+                PaymentStatus.PAID);
 
         // When
         boolean actual = paymentRepository.existsByRentalUserIdAndStatusIn(userId, statuses);
+
+        // Then
+        assertThat(actual).isFalse();
+
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        existsBySessionId method when matching payment exists
+        should return boolean true
+        """)
+    void existsBySessionId_WhenMatchingPaymentExists_ShouldReturnBooleanTrue() {
+        // When
+        boolean actual = paymentRepository
+                .existsBySessionId(PENDING_PAYMENT_SESSION_ID);
+
+        // Then
+        assertThat(actual).isTrue();
+
+    }
+
+    @Test
+    @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        existsBySessionId method when matching payment does not exist
+        should return boolean false
+        """)
+    void existsBySessionId_WhenMatchingDoesNotPaymentExist_ShouldReturnBooleanFalse() {
+        // When
+        boolean actual = paymentRepository
+            .existsBySessionId(PENDING_PAYMENT_SESSION_ID);
 
         // Then
         assertThat(actual).isFalse();
