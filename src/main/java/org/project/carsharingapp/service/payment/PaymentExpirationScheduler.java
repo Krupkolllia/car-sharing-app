@@ -20,8 +20,13 @@ public class PaymentExpirationScheduler {
 
     @Scheduled(cron = "0 * * * * *")
     public void expirePaymentSessions() {
-        paymentExpirationService.markExpiredPayments();
-        log.debug("Expired payment sessions were processed");
+        try {
+            paymentExpirationService.markExpiredPayments();
+            log.debug("Expired payment sessions were successfully processed");
+        } catch (Exception e) {
+            log.error("Failed to process expired payment sessions", e);
+        }
+
     }
 
 }

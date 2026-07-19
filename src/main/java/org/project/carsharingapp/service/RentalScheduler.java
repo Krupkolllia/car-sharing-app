@@ -20,7 +20,12 @@ public class RentalScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void checkOverdueRentals() {
-        rentalService.sendOverdueRentalNotifications();
-        log.info("Rental scheduler was triggered to check overdue rentals");
+        try {
+            rentalService.sendOverdueRentalNotifications();
+            log.info("Overdue rentals were successfully processed");
+        } catch (Exception e) {
+            log.error("Failed to process overdue rentals", e);
+        }
     }
+
 }
