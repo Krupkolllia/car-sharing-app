@@ -141,12 +141,16 @@ public class RentalPaymentService
 
     @Override
     public RentalPaymentResponseDto handleSuccessPayment(String sessionId) {
+        if (!paymentRepository.existsBySessionId(sessionId)) {
+            throw new EntityNotFoundException(
+                "Cannot find payment for provided Stripe session");
+        }
         PaymentSessionStatus sessionStatus = paymentGateway.getStatus(sessionId);
 
         RentalPaymentResponseDto responseDto = transactionTemplate.execute(status -> {
             Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
                     () -> new EntityNotFoundException(
-                        "Cannot find payment for Stripe session: " + sessionId)
+                        "Cannot find payment for provided Stripe session")
             );
 
             if (payment.getStatus() == PaymentStatus.PAID) {
