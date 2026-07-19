@@ -2,9 +2,9 @@ package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_PAYMENT_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
@@ -240,8 +240,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         String jsonRequest = jsonMapper.writeValueAsString(requestDto);
 
-        given(paymentGateway.createSession(any(PaymentSessionRequest.class)))
-            .willReturn(new PaymentSession(
+        when(paymentGateway.createSession(any(PaymentSessionRequest.class)))
+            .thenReturn(new PaymentSession(
                 PENDING_PAYMENT_SESSION_ID, PENDING_PAYMENT_SESSION_URL
             ));
 
@@ -286,7 +286,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         ArgumentCaptor<PaymentSessionRequest> captor =
             ArgumentCaptor.forClass(PaymentSessionRequest.class);
 
-        then(paymentGateway).should().createSession(captor.capture());
+        verify(paymentGateway).createSession(captor.capture());
 
         PaymentSessionRequest stripeRequest = captor.getValue();
 
@@ -333,9 +333,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         long actualDatabaseSize = paymentRepository.count();
         assertThat(actualDatabaseSize).isEqualTo(expectedDatabaseSize);
 
-        then(paymentGateway)
-            .should(never())
-            .createSession(any(PaymentSessionRequest.class));
+        verifyNoInteractions(paymentGateway);
     }
 
     @Test
@@ -379,9 +377,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         long actualDatabaseSize = paymentRepository.count();
         assertThat(actualDatabaseSize).isEqualTo(expectedDatabaseSize);
 
-        then(paymentGateway)
-            .should(never())
-            .createSession(any(PaymentSessionRequest.class));
+        verifyNoInteractions(paymentGateway);
 
     }
 
@@ -395,8 +391,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         """)
     void handleSuccessPayment_ValidCase_ShouldMarkPaymentAsPaidAndReturnResponseDto() throws Exception {
         // Given
-        given(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
-            .willReturn(PaymentSessionStatus.PAID);
+        when(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
+            .thenReturn(PaymentSessionStatus.PAID);
 
         // When
         MvcResult result = mockMvc.perform(
@@ -420,7 +416,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actual.sessionUrl()).isEqualTo(actualPayment.getSessionUrl());
 
-        then(paymentGateway).should().getStatus(PENDING_PAYMENT_SESSION_ID);
+        verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
 
     }
 
@@ -444,7 +440,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             .andExpect(status().isNotFound());
 
         // Then
-        then(paymentGateway).should(never()).getStatus(unknownSessionId);
+        verifyNoInteractions(paymentGateway);
 
     }
 
@@ -458,8 +454,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         """)
     void handleSuccessPayment_WhenPaymentGatewayThrowsException_ShouldReturnStatusCode502() throws Exception {
         // Given
-        given(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
-            .willThrow(new PaymentGatewayException("Payment gateway is unavailable"));
+        when(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
+            .thenThrow(new PaymentGatewayException("Payment gateway is unavailable"));
         
         // When
         mockMvc.perform(
@@ -470,7 +466,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         
         // Then
-        then(paymentGateway).should().getStatus(PENDING_PAYMENT_SESSION_ID);
+        verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
     
     }
 
@@ -486,8 +482,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         """)
     void handleSuccessPayment_WhenPaymentIsAlreadyPaid_ShouldReturnResponseDtoAndStatusCode200() throws Exception {
         // Given
-        given(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
-            .willReturn(PaymentSessionStatus.PAID);
+        when(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
+            .thenReturn(PaymentSessionStatus.PAID);
 
         Payment payment = paymentRepository.findById(PENDING_PAYMENT_ID).orElseThrow();
 
@@ -518,7 +514,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actual.sessionUrl()).isEqualTo(actualPayment.getSessionUrl());
 
-        then(paymentGateway).should().getStatus(PENDING_PAYMENT_SESSION_ID);
+        verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
 
     }
 
@@ -538,8 +534,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
     void handleSuccessPayment_WhenSessionStatusIsNotPaid_ShouldReturnStatusCode409(
             PaymentSessionStatus paymentSessionStatus) throws Exception {
         // Given
-        given(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
-            .willReturn(paymentSessionStatus);
+        when(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
+            .thenReturn(paymentSessionStatus);
 
         // When
         mockMvc.perform(
@@ -554,7 +550,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actualPayment.getStatus()).isEqualTo(PaymentStatus.PENDING);
 
-        then(paymentGateway).should().getStatus(PENDING_PAYMENT_SESSION_ID);
+        verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
 
     }
     
@@ -597,8 +593,8 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         """)
     void renewPaymentSession_ValidCase_ShouldReturnResponseDtoAndStatusCode200() throws Exception {
         // Given
-        given(paymentGateway.createSession(any(PaymentSessionRequest.class)))
-            .willReturn(new PaymentSession(
+        when(paymentGateway.createSession(any(PaymentSessionRequest.class)))
+            .thenReturn(new PaymentSession(
                 "new-test-session-id", "new-test-session-url")
             );
 
@@ -626,7 +622,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actualPayment.getSessionUrl()).isEqualTo("new-test-session-url");
 
-        then(paymentGateway).should().createSession(any(PaymentSessionRequest.class));
+        verify(paymentGateway).createSession(any(PaymentSessionRequest.class));
         
     }
     
@@ -651,9 +647,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             .andExpect(status().isNotFound());
 
         // Then
-        then(paymentGateway)
-            .should(never())
-            .createSession(any(PaymentSessionRequest.class));
+        verifyNoInteractions(paymentGateway);
 
     }
 
@@ -695,9 +689,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actualPayment.getSessionUrl()).isEqualTo(EXPIRED_PAYMENT_SESSION_URL);
 
-        then(paymentGateway)
-            .should(never())
-            .createSession(any(PaymentSessionRequest.class));
+        verifyNoInteractions(paymentGateway);
 
     }
 
@@ -736,9 +728,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actualPayment.getStatus()).isEqualTo(paymentStatus);
 
-        then(paymentGateway)
-            .should(never())
-            .createSession(any(PaymentSessionRequest.class));
+        verifyNoInteractions(paymentGateway);
 
     }
 
