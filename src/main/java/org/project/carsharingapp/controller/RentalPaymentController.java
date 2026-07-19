@@ -68,7 +68,7 @@ public class RentalPaymentController {
     @CustomerOnly
     @PostMapping("/renew")
     public RentalPaymentResponseDto renewPaymentSession(
-            @RequestParam("paymentId") Long paymentId) {
+            @RequestParam("payment_id") Long paymentId) {
         return rentalPaymentService.renewSession(paymentId);
     }
 

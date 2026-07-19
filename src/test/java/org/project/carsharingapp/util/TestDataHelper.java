@@ -40,6 +40,21 @@ public class TestDataHelper {
 
     public static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
 
+    public static final Long EXPIRED_PAYMENT_ID = 1L;
+    public static final String EXPIRED_PAYMENT_SESSION_ID = "testid1";
+    public static final String EXPIRED_PAYMENT_SESSION_URL = "testurl1";
+
+    public static final Long PAID_PAYMENT_ID = 2L;
+    public static final String PAID_PAYMENT_SESSION_ID = "testid2";
+    public static final String PAID_PAYMENT_SESSION_URL = "testurl2";
+
+    public static final Long PENDING_PAYMENT_ID = 3L;
+    public static final String PENDING_PAYMENT_SESSION_ID = "testid3";
+    public static final String PENDING_PAYMENT_SESSION_URL = "testurl3";
+
+
+
+
     public static User createTestCustomer() {
         return new User()
             .setId(CUSTOMER_ID)
@@ -216,7 +231,7 @@ public class TestDataHelper {
 
         return List.of(
             new Payment()
-                .setId(1L)
+                .setId(EXPIRED_PAYMENT_ID)
                 .setStatus(PaymentStatus.PENDING)
                 .setType(PaymentType.PAYMENT)
                 .setRental(firstRental)
