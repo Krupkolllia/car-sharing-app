@@ -52,9 +52,6 @@ public class TestDataHelper {
     public static final String PENDING_PAYMENT_SESSION_ID = "testid3";
     public static final String PENDING_PAYMENT_SESSION_URL = "testurl3";
 
-
-
-
     public static User createTestCustomer() {
         return new User()
             .setId(CUSTOMER_ID)
@@ -202,8 +199,8 @@ public class TestDataHelper {
             .setStatus(PaymentStatus.PENDING)
             .setType(PaymentType.PAYMENT)
             .setRental(createRental(rentalId))
-            .setSessionUrl("test-session-url")
-            .setSessionId("test-session-id")
+            .setSessionUrl("test-session-url" + id + rentalId)
+            .setSessionId("test-session-id" + id + rentalId)
             .setTotal(new BigDecimal("199.99"));
     }
 
@@ -232,29 +229,29 @@ public class TestDataHelper {
         return List.of(
             new Payment()
                 .setId(EXPIRED_PAYMENT_ID)
-                .setStatus(PaymentStatus.PENDING)
+                .setStatus(PaymentStatus.EXPIRED)
                 .setType(PaymentType.PAYMENT)
                 .setRental(firstRental)
-                .setSessionUrl("testurl1")
-                .setSessionId("testid1")
+                .setSessionUrl(EXPIRED_PAYMENT_SESSION_URL)
+                .setSessionId(EXPIRED_PAYMENT_SESSION_ID)
                 .setTotal(new BigDecimal("359.91")),
 
             new Payment()
-                .setId(2L)
+                .setId(PAID_PAYMENT_ID)
                 .setStatus(PaymentStatus.PAID)
                 .setType(PaymentType.PAYMENT)
                 .setRental(secondRental)
-                .setSessionUrl("testurl2")
-                .setSessionId("testid2")
+                .setSessionUrl(PAID_PAYMENT_SESSION_URL)
+                .setSessionId(PAID_PAYMENT_SESSION_ID)
                 .setTotal(new BigDecimal("449.91")),
 
             new Payment()
-                .setId(3L)
+                .setId(PENDING_PAYMENT_ID)
                 .setStatus(PaymentStatus.PENDING)
                 .setType(PaymentType.FINE)
                 .setRental(secondRental)
-                .setSessionUrl("testurl3")
-                .setSessionId("testid3")
+                .setSessionUrl(PENDING_PAYMENT_SESSION_URL)
+                .setSessionId(PENDING_PAYMENT_SESSION_ID)
                 .setTotal(new BigDecimal("64.99"))
         );
     }
