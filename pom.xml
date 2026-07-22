@@ -222,6 +222,8 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/*MapperImpl.class</exclude>
+                                <exclude>**/dto/**/*.class</exclude>
+                                <exclude>**/model/**/*.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -235,6 +237,8 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/*MapperImpl.class</exclude>
+                                <exclude>**/dto/**/*.class</exclude>
+                                <exclude>**/model/**/*.class</exclude>
                             </excludes>
 
                             <rules>
@@ -244,12 +248,13 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.20</minimum> <!-- for ci build to pass -->
+                                            <minimum>0.80</minimum>
                                         </limit>
+
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.20</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

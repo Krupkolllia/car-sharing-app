@@ -30,16 +30,20 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"car"})
     @Query("""
             SELECT r
             FROM Rental r
-            JOIN FETCH r.car
             WHERE r.id = :id
             """)
     Optional<Rental> findByIdForUpdate(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"car"})
-    @Query("SELECT r FROM Rental r WHERE r.id = :id")
+    @Query("""
+            SELECT r
+            FROM Rental r
+            WHERE r.id = :id
+            """)
     Optional<Rental> findByIdWithCar(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"car"})

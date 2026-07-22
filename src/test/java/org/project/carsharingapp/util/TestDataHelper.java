@@ -9,11 +9,18 @@ import java.util.List;
 import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
+import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentMessageDto;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.model.car.Car;
 import org.project.carsharingapp.model.car.CarType;
+import org.project.carsharingapp.model.payment.Payment;
+import org.project.carsharingapp.model.payment.PaymentStatus;
+import org.project.carsharingapp.model.payment.PaymentType;
 import org.project.carsharingapp.model.rental.Rental;
 import org.project.carsharingapp.model.user.Role;
 import org.project.carsharingapp.model.user.User;
@@ -21,6 +28,7 @@ import org.project.carsharingapp.model.user.User;
 public class TestDataHelper {
     public static final String ADD_SCRIPT_PATH = "classpath:database/add-test-data.sql";
     public static final String ADD_RENTAL_SCRIPT_PATH = "classpath:database/add-rental-test-data.sql";
+    public static final String ADD_PAYMENT_SCRIPT_PATH = "classpath:database/add-payment-test-data.sql";
 
     public static final Long CAR_ID = 1L;
 
@@ -34,6 +42,18 @@ public class TestDataHelper {
     public static final LocalDate FIXED_RETURN_DATE = LocalDate.of(2026, 6, 10);
 
     public static final String NO_OVERDUE_RENTALS_MESSAGE = "No overdue rentals today!";
+
+    public static final Long EXPIRED_PAYMENT_ID = 1L;
+    public static final String EXPIRED_PAYMENT_SESSION_ID = "testid1";
+    public static final String EXPIRED_PAYMENT_SESSION_URL = "testurl1";
+
+    public static final Long PAID_PAYMENT_ID = 2L;
+    public static final String PAID_PAYMENT_SESSION_ID = "testid2";
+    public static final String PAID_PAYMENT_SESSION_URL = "testurl2";
+
+    public static final Long PENDING_PAYMENT_ID = 3L;
+    public static final String PENDING_PAYMENT_SESSION_ID = "testid3";
+    public static final String PENDING_PAYMENT_SESSION_URL = "testurl3";
 
     public static User createTestCustomer() {
         return new User()
@@ -173,6 +193,105 @@ public class TestDataHelper {
             CarType.SEDAN,
             new BigDecimal("39.99"),
             3
+        );
+    }
+
+    public static Payment createPendingPayment(Long id, Long rentalId) {
+        return new Payment()
+            .setId(id)
+            .setStatus(PaymentStatus.PENDING)
+            .setType(PaymentType.PAYMENT)
+            .setRental(createRental(rentalId))
+            .setSessionUrl("test-session-url" + id + rentalId)
+            .setSessionId("test-session-id" + id + rentalId)
+            .setTotal(new BigDecimal("359.91"));
+    }
+
+    public static RentalPaymentResponseDto createPendingRentalPaymentResponseDto(Long id, Rental rental) {
+        return new RentalPaymentResponseDto(
+            id, PaymentStatus.PENDING,
+            PaymentType.PAYMENT, rental.getId(),
+            rental.getUser().getId(), PENDING_PAYMENT_SESSION_URL,
+            new BigDecimal("359.91")
+        );
+    }
+
+    public static RentalPaymentResponseDto createPendingRentalPaymentResponseDto() {
+        return createPendingRentalPaymentResponseDto(PENDING_PAYMENT_ID, createRental());
+    }
+
+    public static Payment createPendingPayment() {
+        return createPendingPayment(1L, 1L);
+    }
+
+    public static List<Payment> createPayments() {
+        Rental firstRental = createRental();
+
+        Rental secondRental = new Rental()
+            .setId(2L)
+            .setRentalDate(FIXED_DATE)
+            .setReturnDate(FIXED_RETURN_DATE)
+            .setActualReturnDate(FIXED_RETURN_DATE.plusDays(1))
+            .setCar(new Car()
+                .setId(2L)
+                .setModel("RX")
+                .setBrand("Lexus")
+                .setType(CarType.SUV)
+                .setInventory(3)
+                .setDailyFee(new BigDecimal("49.99"))
+                .setDeleted(false))
+            .setUser(createTestCustomer());
+
+        return List.of(
+            new Payment()
+                .setId(EXPIRED_PAYMENT_ID)
+                .setStatus(PaymentStatus.EXPIRED)
+                .setType(PaymentType.PAYMENT)
+                .setRental(firstRental)
+                .setSessionUrl(EXPIRED_PAYMENT_SESSION_URL)
+                .setSessionId(EXPIRED_PAYMENT_SESSION_ID)
+                .setTotal(new BigDecimal("359.91")),
+
+            new Payment()
+                .setId(PAID_PAYMENT_ID)
+                .setStatus(PaymentStatus.PAID)
+                .setType(PaymentType.PAYMENT)
+                .setRental(secondRental)
+                .setSessionUrl(PAID_PAYMENT_SESSION_URL)
+                .setSessionId(PAID_PAYMENT_SESSION_ID)
+                .setTotal(new BigDecimal("449.91")),
+
+            new Payment()
+                .setId(PENDING_PAYMENT_ID)
+                .setStatus(PaymentStatus.PENDING)
+                .setType(PaymentType.FINE)
+                .setRental(secondRental)
+                .setSessionUrl(PENDING_PAYMENT_SESSION_URL)
+                .setSessionId(PENDING_PAYMENT_SESSION_ID)
+                .setTotal(new BigDecimal("64.99"))
+        );
+    }
+
+    public static PaymentSessionRequest createPaymentSessionRequest() {
+        return new PaymentSessionRequest(
+            new BigDecimal("123.456"),
+            "usd",
+            "test payment",
+            1L
+        );
+    }
+
+    public static RentalPaymentCalculationSource createRentalPaymentCalculationSource(Rental rental) {
+        return new RentalPaymentCalculationSource(
+            rental.getCar().getDailyFee(), rental.getRentalDate(),
+            rental.getReturnDate(), rental.getActualReturnDate()
+        );
+    }
+
+    public static RentalPaymentMessageDto createRentalPaymentMessageDto() {
+        return new RentalPaymentMessageDto(
+            PENDING_PAYMENT_ID, PaymentType.PAYMENT, PaymentStatus.PENDING,
+            new BigDecimal("359.91"), CUSTOMER_ID, CUSTOMER_MAIL, 1L
         );
     }
 

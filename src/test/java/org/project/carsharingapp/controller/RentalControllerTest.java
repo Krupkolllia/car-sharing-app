@@ -1,6 +1,7 @@
 package org.project.carsharingapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.project.carsharingapp.util.TestDataHelper.ADD_PAYMENT_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.ADD_SCRIPT_PATH;
 import static org.project.carsharingapp.util.TestDataHelper.CAR_ID;
 import static org.project.carsharingapp.util.TestDataHelper.CUSTOMER_ID;
@@ -44,7 +45,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @Import(TestClockConfig.class)
-public class RentalControllerTest extends AbstractControllerTest {
+class RentalControllerTest extends AbstractControllerTest {
 
     @Autowired
     private RentalMapper rentalMapper;
@@ -118,6 +119,31 @@ public class RentalControllerTest extends AbstractControllerTest {
 
         assertThat(actualRental.getUser().getId())
             .isEqualTo(expected.userId());
+    }
+
+    @Test
+    @Sql(scripts = {
+        ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
+    }, executionPhase = BEFORE_TEST_METHOD)
+    @WithUserDetails(CUSTOMER_MAIL)
+    @DisplayName("""
+        POST /rentals when user has unpaid payments should
+        return 409 response status code
+        """)
+    void createRental_WhenUserHasUnpaidPayments_ShouldReturn409ResponseStatusCode() throws Exception {
+        // Given
+        RentalRequestDto requestDto = new RentalRequestDto(TestDataHelper.FIXED_RETURN_DATE, CAR_ID);
+
+        String jsonRequest = jsonMapper.writeValueAsString(requestDto);
+
+        // When & Then
+        mockMvc.perform(
+                post("/rentals")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonRequest)
+            )
+            .andExpect(status().isConflict());
+
     }
 
     @Test

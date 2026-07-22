@@ -25,7 +25,7 @@ import org.springframework.test.context.jdbc.Sql;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import(TestClockConfig.class)
-public class RentalRepositoryTest {
+class RentalRepositoryTest {
 
     @Autowired
     private RentalRepository rentalRepository;
@@ -315,6 +315,46 @@ public class RentalRepositoryTest {
         });
 
         assertThat(actual).doesNotContainAnyElementsOf(notExpected);
+    }
+
+    @Test
+    @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findByIdForUpdate method with id of existing rental should
+        return rental with fetched car
+        """)
+    void findByIdForUpdate_ValidCase_ShouldReturnRentalWithFetchedCar() {
+        Rental expected = rentalRepository.findAll().get(0);
+
+        // When
+        Optional<Rental> actual = rentalRepository.findByIdForUpdate(expected.getId());
+
+        // Then
+        assertThat(actual).isPresent();
+        assertThat(actual).get()
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
+        assertThat(Hibernate.isInitialized(actual.get().getCar())).isTrue();
+
+    }
+
+    @Test
+    @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
+    @DisplayName("""
+        findByIdForUpdate method with id of non-existing rental should
+        return empty Optional of rental
+        """)
+    void findByIdForUpdate_WithInvalidId_ShouldReturnEmptyOptionalOfRental() {
+        // Given
+        Long invalidId = 404L;
+
+        // When
+        Optional<Rental> actual = rentalRepository.findByIdForUpdate(invalidId);
+
+
+        // Then
+        assertThat(actual).isEmpty();
+
     }
 
 }

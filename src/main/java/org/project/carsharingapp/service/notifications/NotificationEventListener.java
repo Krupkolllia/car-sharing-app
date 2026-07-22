@@ -25,6 +25,7 @@ public class NotificationEventListener {
     public void handle(NotificationRequestedEvent event) {
         try {
             notificationService.sendNotification(event.message());
+            log.debug("NotificationEventListener was triggered");
         } catch (Exception e) {
             log.warn("Failed to send notification", e);
         }

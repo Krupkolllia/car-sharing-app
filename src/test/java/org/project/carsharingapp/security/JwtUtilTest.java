@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.project.carsharingapp.model.user.User;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class JwtUtilTest {
+class JwtUtilTest {
 
     private final static User TEST_CUSTOMER = createTestCustomer();
 

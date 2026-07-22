@@ -1,6 +1,5 @@
 package org.project.carsharingapp.service.payment;
 
-import com.stripe.Stripe;
 import com.stripe.StripeClient;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -17,7 +16,6 @@ import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
 import org.project.carsharingapp.exception.StripeSessionExpirationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
-import org.project.carsharingapp.properties.PaymentProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,18 +27,14 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private static final String STRIPE_EXPIRED_STATUS = "expired";
 
-    private static final BigDecimal CENTS_IN_DOLLAR = BigDecimal.valueOf(100);
+    private static final BigDecimal CENTS_IN_DOLLAR = new BigDecimal("100");
 
     private final StripeClient stripeClient;
 
     private final StripePaymentUrlBuilder urlBuilder;
 
-    private final PaymentProperties paymentProperties;
-
     @Override
     public PaymentSession createSession(PaymentSessionRequest request) {
-        Stripe.apiKey = paymentProperties.stripe().secretKey();
-
         long unitAmount = request.amount()
                 .multiply(CENTS_IN_DOLLAR)
                 .setScale(0, RoundingMode.HALF_UP)
@@ -96,6 +90,7 @@ public class StripePaymentGateway implements PaymentGateway {
                     .sessions()
                     .expire(sessionId, params);
         } catch (StripeException e) {
+            log.error("Failed to expire Stripe session", e);
             throw new StripeSessionExpirationException(
                 "Failed to expire Stripe session with id: " + sessionId,
                 e
@@ -123,7 +118,10 @@ public class StripePaymentGateway implements PaymentGateway {
             return PaymentSessionStatus.UNPAID;
         } catch (StripeException e) {
             log.error("Failed to retrieve Stripe session", e);
-            throw new StripeSessionRetrievingException("Cannot retrieve Stripe session", e);
+            throw new StripeSessionRetrievingException(
+                "Cannot retrieve Stripe session with id: " + sessionId,
+                e
+            );
         }
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.project.carsharingapp.dto.payment.PaymentSessionStatus;
+import org.project.carsharingapp.exception.PaymentGatewayException;
 import org.project.carsharingapp.model.payment.Payment;
 import org.project.carsharingapp.model.payment.PaymentStatus;
 import org.project.carsharingapp.repository.PaymentRepository;
@@ -33,7 +34,7 @@ public class PaymentExpirationService {
                     payment.setStatus(PaymentStatus.EXPIRED);
                     expiredPayments.add(payment);
                 }
-            } catch (RuntimeException e) {
+            } catch (PaymentGatewayException e) {
                 log.warn(
                         "Failed to retrieve payment session. paymentId={}, sessionId={}",
                         payment.getId(),
@@ -42,10 +43,10 @@ public class PaymentExpirationService {
                 );
             }
 
-            if (!expiredPayments.isEmpty()) {
-                paymentRepository.saveAll(expiredPayments);
-            }
+        }
 
+        if (!expiredPayments.isEmpty()) {
+            paymentRepository.saveAll(expiredPayments);
         }
     }
 

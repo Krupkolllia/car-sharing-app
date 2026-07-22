@@ -20,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-public class JpaUserDetailsServiceTest {
+class JpaUserDetailsServiceTest {
 
     @Mock
     private UserRepository userRepository;

@@ -35,7 +35,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     })
     Optional<Payment> findByIdAndRentalUserId(Long id, Long userId);
 
-    boolean existsByRentalUserIdAndStatusNotIn(
+    boolean existsByRentalUserIdAndStatusIn(
             Long userId, Collection<PaymentStatus> statuses);
+
+    boolean existsBySessionId(String sessionId);
 
 }

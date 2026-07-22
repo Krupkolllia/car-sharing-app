@@ -32,7 +32,7 @@ import org.project.carsharingapp.repository.UserRepository;
 import org.project.carsharingapp.security.SecurityUtil;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;

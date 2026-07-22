@@ -32,7 +32,6 @@ import org.project.carsharingapp.util.MessageBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -142,12 +141,16 @@ public class RentalPaymentService
 
     @Override
     public RentalPaymentResponseDto handleSuccessPayment(String sessionId) {
+        if (!paymentRepository.existsBySessionId(sessionId)) {
+            throw new EntityNotFoundException(
+                "Cannot find payment for provided Stripe session");
+        }
         PaymentSessionStatus sessionStatus = paymentGateway.getStatus(sessionId);
 
         RentalPaymentResponseDto responseDto = transactionTemplate.execute(status -> {
             Payment payment = paymentRepository.findBySessionId(sessionId).orElseThrow(
                     () -> new EntityNotFoundException(
-                        "Cannot find payment for Stripe session: " + sessionId)
+                        "Cannot find payment for provided Stripe session")
             );
 
             if (payment.getStatus() == PaymentStatus.PAID) {
@@ -241,7 +244,7 @@ public class RentalPaymentService
     @Transactional(readOnly = true)
     public boolean hasUnpaidPayment(Long userId) {
         return paymentRepository
-            .existsByRentalUserIdAndStatusNotIn(userId, BLOCKING_STATUSES);
+            .existsByRentalUserIdAndStatusIn(userId, BLOCKING_STATUSES);
     }
 
     private String buildProductName(Rental rental, PaymentType paymentType) {
@@ -257,9 +260,9 @@ public class RentalPaymentService
                     "Cannot find a rental with id: " + requestDto.rentalId())
         );
 
-        if (user.getRole() == Role.CUSTOMER
-                && !rental.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You cannot create payment for this rental");
+        if (!rental.getUser().getId().equals(user.getId())) {
+            throw new EntityNotFoundException(
+                "Cannot find a rental with id: " + requestDto.rentalId());
         }
 
         PaymentType paymentType = requestDto.paymentType();

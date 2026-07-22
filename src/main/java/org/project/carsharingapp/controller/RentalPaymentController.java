@@ -41,7 +41,7 @@ public class RentalPaymentController {
     }
 
     @Operation(summary = "Create payment session")
-    @ManagerOrCustomer
+    @CustomerOnly
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public RentalPaymentResponseDto createPaymentSession(
@@ -68,7 +68,7 @@ public class RentalPaymentController {
     @CustomerOnly
     @PostMapping("/renew")
     public RentalPaymentResponseDto renewPaymentSession(
-            @RequestParam("paymentId") Long paymentId) {
+            @RequestParam("payment_id") Long paymentId) {
         return rentalPaymentService.renewSession(paymentId);
     }
 

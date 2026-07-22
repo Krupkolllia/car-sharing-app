@@ -13,7 +13,7 @@ import org.project.carsharingapp.model.car.CarType;
 import org.project.carsharingapp.model.rental.Rental;
 import org.project.carsharingapp.model.user.User;
 
-public class RentalMapperTest {
+class RentalMapperTest {
 
     private final RentalMapper rentalMapper = Mappers.getMapper(RentalMapper.class);
 

@@ -18,9 +18,11 @@ public record CarRequestDto(
         @NotNull
         CarType type,
 
+        @NotNull
         @PositiveOrZero
         Integer inventory,
 
+        @NotNull
         @Positive
         BigDecimal dailyFee
 

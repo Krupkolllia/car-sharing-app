@@ -4,22 +4,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.project.carsharingapp.exception.DailyFeeNegativeValueException;
 import org.project.carsharingapp.exception.EmailAlreadyInUseException;
 import org.project.carsharingapp.exception.EntityNotFoundException;
 import org.project.carsharingapp.exception.InvalidAuthenticationPrincipalException;
 import org.project.carsharingapp.exception.NoAvailableCarsException;
+import org.project.carsharingapp.exception.PaymentGatewayException;
+import org.project.carsharingapp.exception.PaymentNotExpiredException;
 import org.project.carsharingapp.exception.PaymentProcessingException;
 import org.project.carsharingapp.exception.RentalAlreadyReturnedException;
 import org.project.carsharingapp.exception.RentalDurationInvalidException;
 import org.project.carsharingapp.exception.RentalNotOverdueException;
 import org.project.carsharingapp.exception.RentalNotReturnedException;
+import org.project.carsharingapp.exception.RentalReturnedException;
 import org.project.carsharingapp.exception.StripeSessionCreationException;
 import org.project.carsharingapp.exception.StripeSessionRetrievingException;
 import org.project.carsharingapp.exception.UnpaidPaymentExistsException;
 import org.project.carsharingapp.exception.UnsupportedPaymentTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -33,9 +36,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         EmailAlreadyInUseException.class,
         NoAvailableCarsException.class,
         RentalAlreadyReturnedException.class,
-        RentalNotOverdueException.class,
-        RentalNotReturnedException.class,
-        UnpaidPaymentExistsException.class
+        UnpaidPaymentExistsException.class,
+        PaymentNotExpiredException.class,
+        PaymentProcessingException.class
     })
     public ResponseEntity<ExceptionResponse> handleConflict(
             RuntimeException e, HttpServletRequest request
@@ -48,9 +51,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
-        PaymentProcessingException.class,
+        PaymentGatewayException.class,
         StripeSessionCreationException.class,
-        StripeSessionRetrievingException.class,
+        StripeSessionRetrievingException.class
     })
     public ResponseEntity<ExceptionResponse> handlePayment(
             RuntimeException e, HttpServletRequest request
@@ -94,20 +97,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ExceptionResponse> handleAccessDenied(
-            AccessDeniedException e, HttpServletRequest request
-    ) {
-        return buildResponse(
-            HttpStatus.FORBIDDEN,
-            "Access denied",
-            request.getRequestURI()
-        );
-    }
-
     @ExceptionHandler({
         UnsupportedPaymentTypeException.class,
-        RentalDurationInvalidException.class
+        RentalDurationInvalidException.class,
+        RentalNotReturnedException.class,
+        RentalReturnedException.class,
+        RentalNotOverdueException.class,
+        DailyFeeNegativeValueException.class
     })
     public ResponseEntity<ExceptionResponse> handleBadRequest(
             RuntimeException e, HttpServletRequest request
