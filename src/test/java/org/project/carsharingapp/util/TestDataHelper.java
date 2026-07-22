@@ -10,6 +10,9 @@ import org.project.carsharingapp.dto.car.CarRequestDto;
 import org.project.carsharingapp.dto.car.CarResponseDto;
 import org.project.carsharingapp.dto.car.CarUpdateRequestDto;
 import org.project.carsharingapp.dto.payment.PaymentSessionRequest;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentCalculationSource;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentMessageDto;
+import org.project.carsharingapp.dto.payment.rental.RentalPaymentResponseDto;
 import org.project.carsharingapp.dto.rental.RentalMessageDto;
 import org.project.carsharingapp.dto.rental.RentalResponseDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
@@ -201,7 +204,20 @@ public class TestDataHelper {
             .setRental(createRental(rentalId))
             .setSessionUrl("test-session-url" + id + rentalId)
             .setSessionId("test-session-id" + id + rentalId)
-            .setTotal(new BigDecimal("199.99"));
+            .setTotal(new BigDecimal("359.91"));
+    }
+
+    public static RentalPaymentResponseDto createPendingRentalPaymentResponseDto(Long id, Rental rental) {
+        return new RentalPaymentResponseDto(
+            id, PaymentStatus.PENDING,
+            PaymentType.PAYMENT, rental.getId(),
+            rental.getUser().getId(), PENDING_PAYMENT_SESSION_URL,
+            new BigDecimal("359.91")
+        );
+    }
+
+    public static RentalPaymentResponseDto createPendingRentalPaymentResponseDto() {
+        return createPendingRentalPaymentResponseDto(PENDING_PAYMENT_ID, createRental());
     }
 
     public static Payment createPendingPayment() {
@@ -209,7 +225,7 @@ public class TestDataHelper {
     }
 
     public static List<Payment> createPayments() {
-        Rental firstRental = createRental(1L);
+        Rental firstRental = createRental();
 
         Rental secondRental = new Rental()
             .setId(2L)
@@ -262,6 +278,20 @@ public class TestDataHelper {
             "usd",
             "test payment",
             1L
+        );
+    }
+
+    public static RentalPaymentCalculationSource createRentalPaymentCalculationSource(Rental rental) {
+        return new RentalPaymentCalculationSource(
+            rental.getCar().getDailyFee(), rental.getRentalDate(),
+            rental.getReturnDate(), rental.getActualReturnDate()
+        );
+    }
+
+    public static RentalPaymentMessageDto createRentalPaymentMessageDto() {
+        return new RentalPaymentMessageDto(
+            PENDING_PAYMENT_ID, PaymentType.PAYMENT, PaymentStatus.PENDING,
+            new BigDecimal("359.91"), CUSTOMER_ID, CUSTOMER_MAIL, 1L
         );
     }
 

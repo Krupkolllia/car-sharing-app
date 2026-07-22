@@ -263,9 +263,9 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         Rental rental = rentalRepository.findById(rentalId).orElseThrow();
         assertThat(actual.userId()).isEqualTo(rental.getUser().getId());
 
-        assertThat(actual.type()).isEqualTo(PaymentType.PAYMENT.name());
+        assertThat(actual.type()).isEqualTo(PaymentType.PAYMENT);
 
-        assertThat(actual.status()).isEqualTo(PaymentStatus.PENDING.name());
+        assertThat(actual.status()).isEqualTo(PaymentStatus.PENDING);
 
         assertThat(actual.sessionUrl()).isEqualTo(PENDING_PAYMENT_SESSION_URL);
 
@@ -408,7 +408,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
     
         Payment actualPayment = paymentRepository.findById(actual.id()).orElseThrow();
 
-        assertThat(actual.status()).isEqualTo(PaymentStatus.PAID.name());
+        assertThat(actual.status()).isEqualTo(PaymentStatus.PAID);
 
         assertThat(actualPayment.getStatus()).isEqualTo(PaymentStatus.PAID);
 
@@ -504,7 +504,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         assertThat(actual.id()).isEqualTo(PENDING_PAYMENT_ID);
 
-        assertThat(actual.status()).isEqualTo(PaymentStatus.PAID.name());
+        assertThat(actual.status()).isEqualTo(PaymentStatus.PAID);
 
         Payment actualPayment = paymentRepository.findById(actual.id()).orElseThrow();
 
@@ -612,7 +612,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         Payment actualPayment = paymentRepository.findById(actual.id()).orElseThrow();
 
-        assertThat(actual.status()).isEqualTo(PaymentStatus.PENDING.name());
+        assertThat(actual.status()).isEqualTo(PaymentStatus.PENDING);
 
         assertThat(actual.sessionUrl()).isEqualTo("new-test-session-url");
 
