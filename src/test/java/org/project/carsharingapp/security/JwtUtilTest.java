@@ -13,7 +13,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 class JwtUtilTest {
 
-    private final static User TEST_CUSTOMER = createTestCustomer();
+    private static final User TEST_CUSTOMER = createTestCustomer();
 
     private JwtUtil jwtUtil;
 

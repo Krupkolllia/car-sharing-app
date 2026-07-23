@@ -24,7 +24,7 @@ public class RentalFinePaymentCalculator implements RentalPaymentCalculator {
 
     @Override
     public BigDecimal calculate(RentalPaymentCalculationSource source) {
-        if (source.dailyFee().doubleValue() < 0) {
+        if (source.dailyFee().signum() < 0) {
             throw new DailyFeeNegativeValueException(
                 "Daily fee must be positive or zero");
         }

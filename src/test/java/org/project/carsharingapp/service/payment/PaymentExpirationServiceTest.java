@@ -25,13 +25,13 @@ import org.project.carsharingapp.repository.PaymentRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class PaymentExpirationServiceTest {
-    
+
     @Mock
     private PaymentRepository paymentRepository;
-    
+
     @Mock
     private PaymentGateway paymentGateway;
-    
+
     @InjectMocks
     private PaymentExpirationService paymentExpirationService;
 
@@ -53,7 +53,7 @@ public class PaymentExpirationServiceTest {
 
         // When
         paymentExpirationService.markExpiredPayments();
-        
+
         // Then
         assertThat(firstPendingPayment.getStatus()).isEqualTo(PaymentStatus.EXPIRED);
         assertThat(secondPendingPayment.getStatus()).isEqualTo(PaymentStatus.EXPIRED);
@@ -64,9 +64,9 @@ public class PaymentExpirationServiceTest {
         verify(paymentGateway).getStatus(secondPendingPayment.getSessionId());
 
         verify(paymentRepository).saveAll(List.of(firstPendingPayment, secondPendingPayment));
-        
+
         verifyNoMoreInteractions(paymentRepository, paymentGateway);
-    
+
     }
 
     @Test
@@ -100,7 +100,7 @@ public class PaymentExpirationServiceTest {
         verify(paymentRepository, never()).saveAll(anyList());
 
         verifyNoMoreInteractions(paymentRepository, paymentGateway);
-    
+
     }
 
     @Test
@@ -197,5 +197,5 @@ public class PaymentExpirationServiceTest {
 
         verifyNoMoreInteractions(paymentRepository, paymentGateway);
     }
-    
+
 }

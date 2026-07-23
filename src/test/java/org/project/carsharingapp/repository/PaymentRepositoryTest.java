@@ -84,7 +84,7 @@ class PaymentRepositoryTest {
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
-    }, executionPhase = BEFORE_TEST_METHOD)   
+    }, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
         findAllFilteredByUserId method with id of non-existing user should
         return empty Page
@@ -104,7 +104,7 @@ class PaymentRepositoryTest {
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
-    }, executionPhase = BEFORE_TEST_METHOD)    
+    }, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
         findBySessionId method with existing session id should
         return found payment
@@ -129,7 +129,7 @@ class PaymentRepositoryTest {
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
-    }, executionPhase = BEFORE_TEST_METHOD)    
+    }, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
         findBySessionId method with non-existing session id should
         return empty Optional
@@ -160,7 +160,7 @@ class PaymentRepositoryTest {
         List<Payment> expected = paymentRepository.findAll().stream()
             .filter(payment -> payment.getStatus() == status)
             .toList();
-        
+
         // When
         List<Payment> actual = paymentRepository.findAllByStatus(status);
 
@@ -168,7 +168,7 @@ class PaymentRepositoryTest {
         assertThat(actual)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(expected);
-    
+
     }
 
     @Test
@@ -268,7 +268,7 @@ class PaymentRepositoryTest {
         assertThat(actual).isEmpty();
 
     }
-    
+
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
@@ -280,15 +280,15 @@ class PaymentRepositoryTest {
     void existsByRentalUserIdAndStatusIn_WhenMatchingPaymentExists_ShouldReturnThisPayment() {
         Long userId = createPendingPayment().getRental().getUser().getId();
         Collection<PaymentStatus> statuses = EnumSet.of(PaymentStatus.PENDING);
-        
+
         // When
         boolean actual = paymentRepository.existsByRentalUserIdAndStatusIn(userId, statuses);
-        
+
         // Then
         assertThat(actual).isTrue();
-        
+
     }
-    
+
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
@@ -334,7 +334,7 @@ class PaymentRepositoryTest {
         existsBySessionId method when matching payment does not exist
         should return boolean false
         """)
-    void existsBySessionId_WhenMatchingDoesNotPaymentExist_ShouldReturnBooleanFalse() {
+    void existsBySessionId_WhenMatchingPaymentDoesNotExist_ShouldReturnBooleanFalse() {
         // When
         boolean actual = paymentRepository
             .existsBySessionId(PENDING_PAYMENT_SESSION_ID);

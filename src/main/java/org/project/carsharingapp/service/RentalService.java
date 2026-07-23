@@ -142,7 +142,7 @@ public class RentalService {
 
         Car car = rental.getCar();
         if (carRepository.increaseInventory(car.getId()) == 0) {
-            log.error("Increasing car inventory by 1 had no effect."
+            log.error("Increasing car inventory by 1 had no effect. "
                     + "Car id={}, rentalId={}, userId={}, car inventory={}",
                     car.getId(),
                     rental.getId(),

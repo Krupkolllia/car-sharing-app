@@ -86,7 +86,7 @@ class StripePaymentGatewayTest {
             urlBuilder
         );
     }
-    
+
     @Test
     @DisplayName("""
         createSession method in a valid case should
@@ -110,19 +110,19 @@ class StripePaymentGatewayTest {
 
         // When
         PaymentSession actual = paymentGateway.createSession(paymentSessionRequest);
-        
+
         // Then
         assertThat(actual).isEqualTo(expected);
-        
+
         verify(urlBuilder).buildSuccessUrl();
         verify(urlBuilder).buildCancelUrl();
 
         verify(sessionService).create(any(SessionCreateParams.class));
-        
+
         verifyNoMoreInteractions(urlBuilder, sessionService);
-    
+
     }
-    
+
     @Test
     @DisplayName("""
         createSession method in a valid case should
@@ -144,10 +144,10 @@ class StripePaymentGatewayTest {
 
         ArgumentCaptor<SessionCreateParams> paramsCaptor =
             ArgumentCaptor.forClass(SessionCreateParams.class);
-        
+
         // When
         paymentGateway.createSession(paymentSessionRequest);
-        
+
         // Then
         verify(sessionService).create(paramsCaptor.capture());
 
@@ -179,9 +179,9 @@ class StripePaymentGatewayTest {
         verify(urlBuilder).buildCancelUrl();
 
         verifyNoMoreInteractions(urlBuilder, sessionService);
-    
+
     }
-    
+
     @ParameterizedTest
     @CsvSource({
         "123.444, 12344",
@@ -216,7 +216,7 @@ class StripePaymentGatewayTest {
 
         // When
         paymentGateway.createSession(paymentSessionRequest);
-        
+
         // Then
         verify(sessionService).create(paramsCaptor.capture());
 
@@ -227,12 +227,12 @@ class StripePaymentGatewayTest {
             .getUnitAmount();
 
         assertThat(unitAmount).isEqualTo(expectedUnitAmount);
-        
+
         verify(urlBuilder).buildSuccessUrl();
         verify(urlBuilder).buildCancelUrl();
 
         verifyNoMoreInteractions(urlBuilder, sessionService);
-    
+
     }
 
     @ParameterizedTest
@@ -286,7 +286,7 @@ class StripePaymentGatewayTest {
 
         verifyNoMoreInteractions(urlBuilder, sessionService);
     }
-    
+
     @Test
     @DisplayName("""
         createSession method when Stripe throws exception should
@@ -304,7 +304,7 @@ class StripePaymentGatewayTest {
 
         when(sessionService.create(any(SessionCreateParams.class)))
             .thenThrow(stripeException);
-        
+
         // When & Then
         assertThatThrownBy(() -> paymentGateway.createSession(paymentSessionRequest))
             .isExactlyInstanceOf(StripeSessionCreationException.class)
@@ -345,7 +345,7 @@ class StripePaymentGatewayTest {
 
         when(sessionService.expire(eq(SESSION_ID), any(SessionExpireParams.class)))
             .thenThrow(stripeException);
-        
+
         // When & Then
         assertThatThrownBy(() -> paymentGateway.expireSession(SESSION_ID))
             .isExactlyInstanceOf(StripeSessionExpirationException.class)
@@ -357,7 +357,7 @@ class StripePaymentGatewayTest {
         verifyNoMoreInteractions(sessionService);
 
     }
-    
+
     @Test
     @DisplayName("""
         getStatus method when session status is complete
@@ -373,19 +373,19 @@ class StripePaymentGatewayTest {
         stripeSession.setPaymentStatus(STRIPE_PAYMENT_STATUS_PAID);
 
         when(sessionService.retrieve(SESSION_ID)).thenReturn(stripeSession);
-        
+
         // When
         PaymentSessionStatus actual = paymentGateway.getStatus(SESSION_ID);
 
         // Then
         assertThat(actual).isSameAs(PaymentSessionStatus.PAID);
-        
+
         verify(sessionService).retrieve(SESSION_ID);
 
         verifyNoMoreInteractions(sessionService);
-    
+
     }
-    
+
     @Test
     @DisplayName("""
         getStatus method when session status is expired
@@ -401,17 +401,17 @@ class StripePaymentGatewayTest {
         stripeSession.setPaymentStatus(STRIPE_PAYMENT_STATUS_UNPAID);
 
         when(sessionService.retrieve(SESSION_ID)).thenReturn(stripeSession);
-        
+
         // When
         PaymentSessionStatus actual = paymentGateway.getStatus(SESSION_ID);
-        
+
         // Then
         assertThat(actual).isSameAs(PaymentSessionStatus.EXPIRED);
-        
+
         verify(sessionService).retrieve(SESSION_ID);
 
         verifyNoMoreInteractions(sessionService);
-    
+
     }
 
     @Test
@@ -469,7 +469,7 @@ class StripePaymentGatewayTest {
         verifyNoMoreInteractions(sessionService);
 
     }
-    
+
     @Test
     @DisplayName("""
         getStatus method when Stripe throws exception should
@@ -482,7 +482,7 @@ class StripePaymentGatewayTest {
                 new ApiConnectionException("Stripe is unavailable");
 
         when(sessionService.retrieve(SESSION_ID)).thenThrow(stripeException);
-        
+
         // When & Then
         assertThatThrownBy(() -> paymentGateway.getStatus(SESSION_ID))
             .isExactlyInstanceOf(StripeSessionRetrievingException.class)
@@ -492,7 +492,7 @@ class StripePaymentGatewayTest {
         verify(sessionService).retrieve(SESSION_ID);
 
         verifyNoMoreInteractions(sessionService);
-    
+
     }
 
 }

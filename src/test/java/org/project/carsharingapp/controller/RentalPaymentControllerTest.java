@@ -92,7 +92,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             .findAllFilteredByUserId(CUSTOMER_ID, pageable)
             .map(rentalPaymentMapper::toDto)
             .toList();
-        
+
         // When
         MvcResult result = mockMvc.perform(
             get("/payments")
@@ -102,14 +102,14 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         )
             .andExpect(status().isOk())
             .andReturn();
-        
+
         // Then
         RentalPaymentResponseDto[] actual = getPaymentsContent(result);
 
         assertThat(actual)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(expected);
-    
+
     }
 
     @Test
@@ -167,7 +167,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             .findAllFilteredByUserId(CUSTOMER_ID, pageable)
             .map(rentalPaymentMapper::toDto)
             .toList();
-        
+
         // When
         MockHttpServletRequestBuilder request = get("/payments")
             .param("page", String.valueOf(pageable.getPageNumber()))
@@ -183,11 +183,11 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
 
         // Then
         RentalPaymentResponseDto[] actual = getPaymentsContent(result);
-    
+
         assertThat(actual)
             .usingRecursiveFieldByFieldElementComparator()
             .containsExactlyInAnyOrderElementsOf(expected);
-    
+
     }
 
     @Test
@@ -299,7 +299,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         assertThat(stripeRequest.quantity()).isEqualTo(1L);
 
     }
-    
+
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
@@ -320,7 +320,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         long expectedDatabaseSize = paymentRepository.count();
 
         String jsonRequest = jsonMapper.writeValueAsString(requestDto);
-        
+
         // When
         mockMvc.perform(
                 post("/payments")
@@ -401,11 +401,11 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             )
             .andExpect(status().isOk())
             .andReturn();
-        
+
         // Then
         RentalPaymentResponseDto actual = jsonMapper.readValue(
             result.getResponse().getContentAsString(), RentalPaymentResponseDto.class);
-    
+
         Payment actualPayment = paymentRepository.findById(actual.id()).orElseThrow();
 
         assertThat(actual.status()).isEqualTo(PaymentStatus.PAID);
@@ -456,7 +456,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         // Given
         when(paymentGateway.getStatus(PENDING_PAYMENT_SESSION_ID))
             .thenThrow(new PaymentGatewayException("Payment gateway is unavailable"));
-        
+
         // When
         mockMvc.perform(
                 get("/payments/success")
@@ -464,10 +464,10 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             )
             .andExpect(status().isBadGateway());
 
-        
+
         // Then
         verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
-    
+
     }
 
 
@@ -553,7 +553,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         verify(paymentGateway).getStatus(PENDING_PAYMENT_SESSION_ID);
 
     }
-    
+
     @Test
     @DisplayName("""
         GET /payments/cancel method always should
@@ -565,7 +565,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
             "Payment was not completed."
                 + " You can retry using the existing payment link before it expires."
         );
-        
+
         // When
         MvcResult result = mockMvc.perform(
                 get("/payments/cancel")
@@ -577,9 +577,9 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         // Then
         PaymentCallbackResponseDto actual = jsonMapper.readValue(
             result.getResponse().getContentAsString(), PaymentCallbackResponseDto.class);
-    
+
         assertThat(actual).isEqualTo(expected);
-    
+
     }
 
     @Test
@@ -623,9 +623,9 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         assertThat(actualPayment.getSessionUrl()).isEqualTo("new-test-session-url");
 
         verify(paymentGateway).createSession(any(PaymentSessionRequest.class));
-        
+
     }
-    
+
     @Test
     @Sql(scripts = {
         ADD_SCRIPT_PATH, ADD_PAYMENT_SCRIPT_PATH
@@ -638,7 +638,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
     void renewPaymentSession_WithInvalidPaymentId_ShouldReturnStatusCode404() throws Exception {
         // Given
         Long invalidPaymentId = 404L;
-        
+
         // When
         mockMvc.perform(
                 post("/payments/renew")
@@ -660,7 +660,7 @@ public class RentalPaymentControllerTest extends AbstractControllerTest {
         renewPaymentSession method with payment id of another user should
         return status code 404
         """)
-    void renewPaymentSession_WithPaymentIdOfAnotherId_ShouldReturnStatusCode404() throws Exception {
+    void renewPaymentSession_WithPaymentIdOfAnotherUser_ShouldReturnStatusCode404() throws Exception {
         // Given
         Payment payment = paymentRepository.findById(EXPIRED_PAYMENT_ID)
             .orElseThrow();

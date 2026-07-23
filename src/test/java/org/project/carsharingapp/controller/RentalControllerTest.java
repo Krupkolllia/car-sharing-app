@@ -498,7 +498,7 @@ class RentalControllerTest extends AbstractControllerTest {
             .usingRecursiveComparison()
             .isEqualTo(expected);
     }
-    
+
     @Test
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @WithUserDetails(CUSTOMER_MAIL)
@@ -516,7 +516,7 @@ class RentalControllerTest extends AbstractControllerTest {
 
         rental.setUser(anotherUser);
         rentalRepository.save(rental);
-        
+
         // When & Then
         mockMvc.perform(post("/rentals/{id}/return", rental.getId()))
             .andExpect(status().isNotFound());
@@ -533,11 +533,11 @@ class RentalControllerTest extends AbstractControllerTest {
         // Given
         Rental rental = createRental().setActualReturnDate(TestDataHelper.FIXED_RETURN_DATE);
         rentalRepository.save(rental);
-        
+
         // When & Then
         mockMvc.perform(post("/rentals/{id}/return", rental.getId()))
             .andExpect(status().isConflict());
-    
+
     }
 
 }
