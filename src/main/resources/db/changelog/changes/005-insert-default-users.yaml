@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       id: 005-insert-default-users
       author: Krupko Illia
+      context: "@dev"
       changes:
         - insert:
             tableName: users
