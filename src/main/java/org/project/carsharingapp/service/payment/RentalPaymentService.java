@@ -1,6 +1,7 @@
 package org.project.carsharingapp.service.payment;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.EnumSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,8 @@ public class RentalPaymentService
     private static final String CURRENCY = "usd";
 
     private static final Long QUANTITY = 1L;
+
+    private static final int MONEY_SCALE = 2;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -276,7 +279,8 @@ public class RentalPaymentService
 
         BigDecimal amount = calculatorResolver
                 .resolve(paymentType)
-                .calculate(calculationSource);
+                .calculate(calculationSource)
+                .setScale(MONEY_SCALE, RoundingMode.HALF_UP);
 
         return new PreparedPayment(
             rental.getId(),
