@@ -66,7 +66,7 @@ class CarRepositoryTest {
     @Sql(scripts = ADD_SCRIPT_PATH, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
     @DisplayName("""
         decreaseInventory method with id of existing car
-        and car inventory > 0 should increase inventory by 1
+        and car inventory > 0 should decrease inventory by 1
         and return int 1 (affected rows)
         """)
     void decreaseInventory_ValidCase_ShouldDecreaseByOneAndReturnIntOne() {

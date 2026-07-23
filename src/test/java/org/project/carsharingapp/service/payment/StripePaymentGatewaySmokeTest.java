@@ -60,14 +60,14 @@ public class StripePaymentGatewaySmokeTest {
         Stripe payment gateway should create,
         retrieve and expire a real test checkout session
         """)
-    void StripePaymentGateway_ShouldCompleteCheckoutSessionLifecycle() {
+    void stripePaymentGateway_ShouldCompleteCheckoutSessionLifecycle() {
         // Given
         PaymentSessionRequest paymentSessionRequest = createPaymentSessionRequest();
-        
+
         // When
         PaymentSession paymentSession = paymentGateway.createSession(paymentSessionRequest);
         createdSessionId = paymentSession.id();
-        
+
         // Then
         assertThat(paymentSession.id())
             .isNotBlank()

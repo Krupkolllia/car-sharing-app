@@ -36,9 +36,9 @@ class RentalPaymentCalculatorResolverTest {
         resolver = new RentalPaymentCalculatorResolver(
             List.of(regularPaymentCalculator, finePaymentCalculator)
         );
-        
+
     }
-    
+
     @Test
     @DisplayName("""
         resolve method with Payment type should
@@ -80,7 +80,7 @@ class RentalPaymentCalculatorResolverTest {
             .hasMessage("Unsupported payment type: " + PaymentType.FINE);
 
     }
-    
+
     @Test
     @DisplayName("""
         constructor with duplicate supported types should
@@ -93,6 +93,6 @@ class RentalPaymentCalculatorResolverTest {
         assertThatThrownBy(() -> new RentalPaymentCalculatorResolver(
             List.of(regularPaymentCalculator, finePaymentCalculator)
         )).isExactlyInstanceOf(IllegalStateException.class);
-    
+
     }
 }

@@ -47,6 +47,3 @@ databaseChangeLog:
               - column:
                   name: is_deleted
                   valueBoolean: false
-
-
-                  

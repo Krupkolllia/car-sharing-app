@@ -20,7 +20,7 @@ public class PaymentExpirationSchedulerTest {
 
     @InjectMocks
     private PaymentExpirationScheduler paymentExpirationScheduler;
-    
+
     @Test
     @DisplayName("""
         expirePaymentSessions method should
@@ -29,13 +29,13 @@ public class PaymentExpirationSchedulerTest {
     void expirePaymentSessions_ShouldDelegateExpirationProcessingToService() {
         // When
         paymentExpirationScheduler.expirePaymentSessions();
-        
+
         // Then
         verify(paymentExpirationService).markExpiredPayments();
         verifyNoMoreInteractions(paymentExpirationService);
-    
+
     }
-    
+
     @Test
     @DisplayName("""
         expirePaymentSessions method when service throws exception should
@@ -46,15 +46,15 @@ public class PaymentExpirationSchedulerTest {
         doThrow(new RuntimeException("Payment expiration service exception"))
             .when(paymentExpirationService)
             .markExpiredPayments();
-        
+
         // When
         assertThatCode(() -> paymentExpirationScheduler.expirePaymentSessions())
             .doesNotThrowAnyException();
-        
+
         // Then
         verify(paymentExpirationService).markExpiredPayments();
         verifyNoMoreInteractions(paymentExpirationService);
-    
+
     }
 
 }

@@ -251,7 +251,7 @@ class RentalRepositoryTest {
             });
 
     }
-    
+
     @Test
     @Sql(scripts = ADD_RENTAL_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
@@ -269,7 +269,7 @@ class RentalRepositoryTest {
         );
 
         rentalRepository.saveAllAndFlush(activeRentals);
-        
+
         // When
         List<Rental> actual = rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE);
 
@@ -277,7 +277,7 @@ class RentalRepositoryTest {
         assertThat(actual).isEmpty();
 
     }
-    
+
     @Test
     @Sql(scripts = ADD_RENTAL_SCRIPT_PATH, executionPhase = BEFORE_TEST_METHOD)
     @DisplayName("""
@@ -299,7 +299,7 @@ class RentalRepositoryTest {
 
         // When
         List<Rental> actual = rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE);
-        
+
         // Then
         assertThat(notExpected).isNotEmpty();
         assertThat(expected).isNotEmpty();
@@ -311,7 +311,7 @@ class RentalRepositoryTest {
         actual.forEach(rental -> {
             assertThat(rental.getActualReturnDate() == null).isTrue();
             assertThat(rental.getReturnDate().isBefore(TestClockConfig.FIXED_DATE)).isTrue();
-            assertThat(Hibernate.isInitialized(rental.getCar()));
+            assertThat(Hibernate.isInitialized(rental.getCar())).isTrue();
         });
 
         assertThat(actual).doesNotContainAnyElementsOf(notExpected);

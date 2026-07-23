@@ -111,7 +111,7 @@ class RentalServiceTest {
         securityUtilMock.when(SecurityUtil::getAuthenticatedUser)
             .thenReturn(authenticatedUser);
     }
-    
+
     @Test
     @DisplayName("""
         createRental method in a valid case should
@@ -140,10 +140,10 @@ class RentalServiceTest {
             .thenReturn(createRentalMessageDto());
 
         when(rentalMapper.toDto(any(Rental.class))).thenReturn(expected);
-    
+
         // When
         RentalResponseDto actual = rentalService.createRental(requestDto);
-    
+
         // Then
         assertThat(actual)
             .usingRecursiveComparison()
@@ -197,7 +197,7 @@ class RentalServiceTest {
         verifyNoInteractions(carRepository, rentalRepository, rentalMapper, eventPublisher);
 
     }
-    
+
     @Test
     @DisplayName("""
         createRental method with id of non-existing car should
@@ -213,7 +213,7 @@ class RentalServiceTest {
 
         when(carRepository.decreaseInventory(invalidId)).thenReturn(0);
         when(carRepository.findById(invalidId)).thenReturn(Optional.empty());
-    
+
         // When & Then
         assertThatThrownBy(() -> rentalService.createRental(requestDto))
             .isExactlyInstanceOf(EntityNotFoundException.class)
@@ -272,11 +272,11 @@ class RentalServiceTest {
             .thenReturn(new PageImpl<>(List.of(rental)));
 
         when(rentalMapper.toDto(rental)).thenReturn(expected);
-    
+
         // When
         RentalResponseDto actual = rentalService.findAll(id, false, pageable)
             .getContent().get(0);
-    
+
         // Then
         assertThat(actual)
             .usingRecursiveComparison()
@@ -292,7 +292,7 @@ class RentalServiceTest {
         securityUtilMock.verifyNoMoreInteractions();
 
     }
-    
+
     @Test
     @DisplayName("""
         findAll method for MANAGER should
@@ -311,7 +311,7 @@ class RentalServiceTest {
             .thenReturn(new PageImpl<>(List.of(rental)));
 
         when(rentalMapper.toDto(rental)).thenReturn(expected);
-    
+
         // When
 
         RentalResponseDto actual = rentalService.findAll(CUSTOMER_ID, false, pageable)
@@ -332,7 +332,7 @@ class RentalServiceTest {
         securityUtilMock.verifyNoMoreInteractions();
 
     }
-    
+
     @Test
     @DisplayName("""
         findById method for MANAGER with id of existing rental
@@ -349,10 +349,10 @@ class RentalServiceTest {
             .thenReturn(Optional.of(rental));
 
         when(rentalMapper.toDto(rental)).thenReturn(expected);
-    
+
         // When
         RentalResponseDto actual = rentalService.findById(rental.getId());
-    
+
         // Then
         assertThat(actual)
             .usingRecursiveComparison()
@@ -366,9 +366,9 @@ class RentalServiceTest {
 
         verifyNoMoreInteractions(rentalRepository, rentalMapper);
         securityUtilMock.verifyNoMoreInteractions();
-        
+
     }
-    
+
     @Test
     @DisplayName("""
         findById method with id of non-existing rental should
@@ -380,7 +380,7 @@ class RentalServiceTest {
 
         when(rentalRepository.findByIdWithCar(invalidId))
             .thenReturn(Optional.empty());
-    
+
         // When & Then
         assertThatThrownBy(() -> rentalService.findById(invalidId))
             .isExactlyInstanceOf(EntityNotFoundException.class)
@@ -431,7 +431,7 @@ class RentalServiceTest {
         securityUtilMock.verifyNoMoreInteractions();
 
     }
-    
+
     @Test
     @DisplayName("""
         findById method for CUSTOMER with id of existing rental that
@@ -446,7 +446,7 @@ class RentalServiceTest {
         when(rentalRepository.findByIdWithCar(rental.getId()))
             .thenReturn(Optional.of(rental));
 
-        
+
         // When & Then
         assertThatThrownBy(() -> rentalService.findById(rental.getId()))
             .isExactlyInstanceOf(EntityNotFoundException.class)
@@ -460,9 +460,9 @@ class RentalServiceTest {
         securityUtilMock.verifyNoMoreInteractions();
 
         verifyNoInteractions(rentalMapper);
-        
+
     }
-    
+
     @Test
     @DisplayName("""
         returnRental method in a valid case for MANAGER
@@ -652,7 +652,7 @@ class RentalServiceTest {
 
     }
 
-    
+
     @Test
     @DisplayName("""
         returnRental method when increasing inventory has no effect should
@@ -685,7 +685,7 @@ class RentalServiceTest {
         verifyNoInteractions(rentalMapper);
 
     }
-    
+
     @Test
     @DisplayName("""
         sendOverdueRentalNotifications method when overdue
@@ -718,7 +718,7 @@ class RentalServiceTest {
 
         // When
         rentalService.sendOverdueRentalNotifications();
-        
+
         // Then
         verify(rentalRepository).findAllOverdue(TestClockConfig.FIXED_DATE);
 
@@ -734,9 +734,9 @@ class RentalServiceTest {
             .publishEvent(new NotificationRequestedEvent(NO_OVERDUE_RENTALS_MESSAGE));
 
         verifyNoMoreInteractions(rentalRepository, rentalMapper, eventPublisher);
-    
+
     }
-    
+
     @Test
     @DisplayName("""
         sendOverdueRentalNotifications method when no overdue
@@ -746,10 +746,10 @@ class RentalServiceTest {
         // Given
         when(rentalRepository.findAllOverdue(TestClockConfig.FIXED_DATE))
             .thenReturn(List.of());
-        
+
         // When
         rentalService.sendOverdueRentalNotifications();
-        
+
         // Then
         verify(rentalRepository).findAllOverdue(TestClockConfig.FIXED_DATE);
         verify(eventPublisher)

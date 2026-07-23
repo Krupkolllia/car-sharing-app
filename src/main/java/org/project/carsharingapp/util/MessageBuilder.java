@@ -85,7 +85,7 @@ public final class MessageBuilder {
     public static String buildRentalPaymentCompletedMessage(RentalPaymentMessageDto payment) {
         return """
             ✅ Payment completed
-    
+
             Payment ID: %d
             Type: %s
             Amount: $%s

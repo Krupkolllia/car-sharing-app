@@ -17,10 +17,10 @@ public class RentalSchedulerTest {
 
     @Mock
     private RentalService rentalService;
-    
+
     @InjectMocks
     private RentalScheduler rentalScheduler;
-    
+
     @Test
     @DisplayName("""
         checkOverdueRentals method should
@@ -29,13 +29,13 @@ public class RentalSchedulerTest {
     void checkOverdueRentals_ShouldDelegateOverdueRentalProcessingToService() {
         // When
         rentalScheduler.checkOverdueRentals();
-        
+
         // Then
         verify(rentalService).sendOverdueRentalNotifications();
         verifyNoMoreInteractions(rentalService);
-    
+
     }
-    
+
     @Test
     @DisplayName("""
         checkOverdueRentals method when service throws exception should
@@ -46,15 +46,15 @@ public class RentalSchedulerTest {
         doThrow(new RuntimeException("Rental service exception"))
                 .when(rentalService)
                 .sendOverdueRentalNotifications();
-        
+
         // When
         assertThatCode(() -> rentalScheduler.checkOverdueRentals())
             .doesNotThrowAnyException();
-        
+
         // Then
         verify(rentalService).sendOverdueRentalNotifications();
         verifyNoMoreInteractions(rentalService);
-    
+
     }
 
 }
