@@ -46,7 +46,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
             """)
     Optional<Rental> findByIdWithCar(@Param("id") Long id);
 
-    @EntityGraph(attributePaths = {"car"})
+    @EntityGraph(attributePaths = {"car", "user"})
     @Query("""
             SELECT r FROM Rental r
             WHERE r.actualReturnDate IS NULL
