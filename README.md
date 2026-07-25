@@ -187,17 +187,32 @@ Swagger and OpenAPI routes are public so the API can be explored without first o
 
 ## Running Locally
 
-### Option 1: Docker Compose
+### 1. Clone and configure the project
 
 Requirements:
 
+- Git
 - Docker with Docker Compose
 - Stripe test-mode secret key
+- Java 17 only when running the application through Maven
 
-Create the environment file:
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/Krupkolllia/car-sharing-app.git
+cd car-sharing-app
+```
+
+Create a local environment file from the provided template:
 
 ```bash
 cp .env.sample .env
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.sample .env
 ```
 
 Set at least these values in `.env`:
@@ -221,13 +236,17 @@ Generate a suitable development JWT secret:
 openssl rand -base64 32
 ```
 
-Build and start the application and PostgreSQL:
+### 2. Start the application
+
+#### Docker Compose — recommended
+
+Build and start the application together with PostgreSQL:
 
 ```bash
 docker compose up --build
 ```
 
-The database is exposed on local port `5433` by the sample configuration. The API is available at `http://localhost:8080/api`.
+The API will be available at `http://localhost:8080/api`, and PostgreSQL will be exposed on local port `5433` by the sample configuration.
 
 Stop the stack:
 
@@ -235,19 +254,13 @@ Stop the stack:
 docker compose down
 ```
 
-Remove the PostgreSQL volume as well:
+To also remove the PostgreSQL volume:
 
 ```bash
 docker compose down -v
 ```
 
-### Option 2: Maven and Dockerized PostgreSQL
-
-Requirements:
-
-- Java 17
-- Docker
-- A configured `.env` file
+#### Maven with Dockerized PostgreSQL
 
 Start only PostgreSQL:
 
