@@ -2,12 +2,14 @@
 
 # CarSharingApp
 
-A Spring Boot REST API that implements the complete car-rental workflow: inventory-safe booking and returns, JWT authorization, Stripe payment sessions, overdue processing, and transaction-aware Telegram notifications.
+A Spring Boot REST API that implements the complete car-rental workflow: inventory-safe booking and returns, JWT authorization, Stripe payment sessions, overdue processing, and transaction-aware Telegram notifications. The application is publicly deployed on AWS EC2 behind Nginx with HTTPS.
 
 [![Java 17](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot 4.0.6](https://img.shields.io/badge/Spring%20Boot-4.0.6-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![JaCoCo Branch Coverage](https://img.shields.io/badge/JaCoCo%20branch%20coverage-100%25-brightgreen)](#testing-strategy)
+
+[Live Swagger UI](https://portfolio-carsharing.duckdns.org/api/swagger-ui) · [Health Check](https://portfolio-carsharing.duckdns.org/api/health)
 
 [Architecture](#architecture) · [Engineering Highlights](#engineering-highlights) · [API Documentation](#api-documentation) · [Run Locally](#running-locally) · [Testing](#testing-strategy)
 
@@ -20,6 +22,7 @@ A Spring Boot REST API that implements the complete car-rental workflow: invento
 - **Business-rule enforcement** — blocks new rentals while the customer has a `PENDING` or `EXPIRED` payment.
 - **Reliable external notifications** — sends Telegram messages asynchronously only after the surrounding database transaction commits.
 - **Automated quality controls** — Liquibase migrations, PostgreSQL Testcontainers, MockMvc integration tests, Mockito unit tests, Checkstyle, JaCoCo gates, and GitHub Actions.
+- **Public AWS deployment** — runs on an AWS EC2 instance through Docker Compose, with Nginx as a reverse proxy and HTTPS certificates managed by Let's Encrypt.
 
 ## Tech Stack
 
@@ -31,13 +34,14 @@ A Spring Boot REST API that implements the complete car-rental workflow: invento
 | Payments and messaging | Stripe Java 33.1.0, Telegram Bot API, Spring application events |
 | API and mapping | REST, Bean Validation, springdoc OpenAPI 3.0.2, MapStruct 1.5.5 |
 | Testing and quality | JUnit 5, Mockito, MockMvc, Testcontainers 1.19.8, AssertJ, JaCoCo 0.8.15, Checkstyle |
-| Delivery | Maven Wrapper, Docker, Docker Compose, GitHub Actions |
+| Delivery | Maven Wrapper, Docker, Docker Compose, GitHub Actions, AWS EC2, Nginx, Let's Encrypt, DuckDNS |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Client[API Client / Swagger UI] --> Security[Spring Security + JWT Filter]
+    Client[API Client / Swagger UI] -->|HTTPS| Nginx[Nginx Reverse Proxy]
+    Nginx --> Security[Spring Security + JWT Filter]
     Security --> Controllers[REST Controllers]
     Controllers --> Services[Application Services]
     Services --> Repositories[Spring Data JPA Repositories]
@@ -60,17 +64,17 @@ The application is a layered monolith. Controllers own HTTP concerns, services e
 1. A user registers or logs in and receives a JWT.
 2. Public catalog endpoints expose available cars; catalog mutations require the `MANAGER` role.
 3. A `CUSTOMER` creates a rental.
-  - Existing unpaid payments are checked first.
-  - Inventory is decremented atomically only when stock is greater than zero.
+- Existing unpaid payments are checked first.
+- Inventory is decremented atomically only when stock is greater than zero.
 4. A customer or manager returns the rental.
-  - The rental row is locked for update.
-  - Repeated returns are rejected.
-  - The actual return date is recorded and inventory is restored.
+- The rental row is locked for update.
+- Repeated returns are rejected.
+- The actual return date is recorded and inventory is restored.
 5. The customer creates either a regular rental payment or an overdue fine.
 6. Stripe hosts the checkout session.
-  - A successful callback is verified against Stripe before the payment becomes `PAID`.
-  - A scheduler marks expired checkout sessions as `EXPIRED`.
-  - Only expired sessions can be renewed.
+- A successful callback is verified against Stripe before the payment becomes `PAID`.
+- A scheduler marks expired checkout sessions as `EXPIRED`.
+- Only expired sessions can be renewed.
 7. Rental and payment events publish Telegram notifications after a successful commit.
 
 ## Engineering Highlights
@@ -166,7 +170,13 @@ On Windows:
 
 ## API Documentation
 
-After the application starts:
+The portfolio deployment is publicly available at:
+
+- Swagger UI: https://portfolio-carsharing.duckdns.org/api/swagger-ui
+- OpenAPI JSON: https://portfolio-carsharing.duckdns.org/api/v3/api-docs
+- Health check: https://portfolio-carsharing.duckdns.org/api/health
+
+For a local instance:
 
 - Swagger UI: `http://localhost:8080/api/swagger-ui`
 - OpenAPI JSON: `http://localhost:8080/api/v3/api-docs`
@@ -299,7 +309,7 @@ On Windows:
 | `TELEGRAM_BOT_TOKEN` | When enabled | Telegram bot token | — |
 | `TELEGRAM_CHAT_ID` | When enabled | Notification chat | — |
 | `TELEGRAM_NOTIFICATIONS_ENABLED` | No | Enable Telegram listener | `false` |
-| `APP_BASE_URL` | No | Base URL used in external callbacks | `http://localhost:8080/api` |
+| `APP_BASE_URL` | No | Base URL used in external callbacks | `http://localhost:8080/api` locally; `https://portfolio-carsharing.duckdns.org/api` in the deployed environment |
 | `SCHEDULING_ENABLED` | No | Enable scheduled jobs | `false` |
 
 Do not commit `.env` or real credentials.
@@ -335,4 +345,4 @@ Dockerfile                            # Multi-stage, non-root runtime image
 
 ## Current Scope
 
-This repository demonstrates backend design and testing decisions; it does not claim commercial production operation. No public deployment is linked yet, so Swagger is documented only for local execution.
+This repository demonstrates backend design, testing, and deployment decisions; it does not claim commercial production operation. A public portfolio instance runs on AWS EC2 through Docker Compose, with Nginx terminating HTTPS and proxying requests to the application. The application port is bound to localhost on the server, PostgreSQL is not exposed publicly, and the API is available through the DuckDNS domain linked above.
