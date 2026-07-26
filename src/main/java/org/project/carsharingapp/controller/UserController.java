@@ -9,6 +9,7 @@ import org.project.carsharingapp.dto.user.UpdateUserRoleRequestDto;
 import org.project.carsharingapp.dto.user.UserProfileResponseDto;
 import org.project.carsharingapp.security.annotation.CustomerOnly;
 import org.project.carsharingapp.security.annotation.ManagerOnly;
+import org.project.carsharingapp.security.annotation.ManagerOrCustomer;
 import org.project.carsharingapp.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,7 +28,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Get my profile info")
-    @CustomerOnly
+    @ManagerOrCustomer
     @GetMapping("/me")
     public UserProfileResponseDto getUserProfile() {
         return userService.getProfile();
